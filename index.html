@@ -126,7 +126,7 @@ button,input,select{font:inherit;color:inherit}
 .as-group-head .name{font-weight:700;font-size:16px}
 .as-group-head .sector{color:var(--gray-500);font-size:13px}
 .as-group-head .meta{margin-left:auto;color:var(--gray-500);font-size:13px}
-.as-item{display:grid;grid-template-columns:130px 1fr 170px 40px;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-100)}
+.as-item{display:grid;grid-template-columns:236px 1fr 170px 40px;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-100)}
 .as-item:last-child{border-bottom:0}
 .as-item .input{height:38px;font-size:15px}
 .as-item .desc{font-weight:600}
@@ -193,7 +193,7 @@ tr.released td{color:var(--gray-500)}
 .wd span{display:inline-grid;place-items:center;min-width:44px;height:38px;padding:0 6px;border:1px solid var(--gray-300);border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;color:var(--gray-500);background:#fff;user-select:none}
 .wd input:checked+span{background:var(--olive);border-color:var(--olive);color:#fff}
 .wd input:focus-visible+span{outline:3px solid var(--olive-300)}
-.rt-item{display:grid;grid-template-columns:64px 1fr auto 36px 36px;gap:10px;align-items:center;padding:9px 16px;border-bottom:1px solid var(--gray-100)}
+.rt-item{display:grid;grid-template-columns:104px 1fr auto 36px 36px;gap:10px;align-items:center;padding:9px 16px;border-bottom:1px solid var(--gray-100)}
 .rt-item:last-child{border-bottom:0}
 .rt-item .t{font-weight:700;color:var(--olive);font-variant-numeric:tabular-nums}
 .rt-days{font-size:12px;color:var(--olive);font-weight:700;background:var(--olive-50);padding:3px 10px;border-radius:999px;white-space:nowrap}
@@ -236,7 +236,8 @@ tr.released td{color:var(--gray-500)}
   .ed-header-inner,.ed-main,.tabs{padding-left:14px;padding-right:14px}
   .ed-logo{height:40px}
   .btn .label-lg{display:none}
-  .as-item{grid-template-columns:120px 1fr 40px}
+  .as-item{grid-template-columns:1fr 40px}
+  .as-item .times{grid-column:1 / -1}
   .as-item .status-select{grid-column:1 / -1;grid-row:2}
   .row{flex-direction:column;gap:0}
 }
@@ -300,6 +301,13 @@ tr.released td{color:var(--gray-500)}
 .tv-item.p-baixa{border-left-color:var(--gray-500)}
 .tv-time{font-weight:800;color:var(--olive-300);font-variant-numeric:tabular-nums;min-width:4.2ch}
 .tv-time.none{color:var(--gray-500)}
+.tv-time small{display:block;font-size:.58em;font-weight:700;color:var(--gray-400);line-height:1.1;margin-top:.1em}
+.tv-time small::before{content:"até "}
+.tv-grid.list .tv-time small{display:inline;font-size:.8em;margin:0 0 0 .15em}
+.tv-grid.list .tv-time small::before{content:"–"}
+.times{display:flex;align-items:center;gap:6px}
+.times .input{min-width:0;padding:0 8px}
+.times span{color:var(--gray-500);font-weight:700}
 .tv-main{min-width:0;display:flex;flex-direction:column}
 .tv-who{min-width:0}
 /* Modo lista: uma linha por colaborador, atividades lado a lado com o texto inteiro (usado quando há muita gente) */
@@ -511,11 +519,19 @@ tbody tr:hover td{background:var(--olive-50)}
             <select class="input" id="as-machine"></select>
             <small class="err"></small>
           </div>
-          <div class="field">
-            <label for="as-time">Horário</label>
-            <input class="input" type="time" id="as-time">
-            <small class="hint">Preenchido com o horário padrão da atividade; ajuste se precisar.</small>
+          <div class="row">
+            <div class="field" id="f-as-time">
+              <label for="as-time">Início</label>
+              <input class="input" type="time" id="as-time">
+              <small class="err"></small>
+            </div>
+            <div class="field" id="f-as-end">
+              <label for="as-end">Fim</label>
+              <input class="input" type="time" id="as-end">
+              <small class="err"></small>
+            </div>
           </div>
+          <small class="hint" style="display:block;margin:-8px 0 16px;color:var(--gray-500);font-size:13px">Preenchidos com o horário padrão da atividade; ajuste se precisar.</small>
           <button class="btn btn-primary" type="submit" data-icon="plus" style="width:100%">Atribuir</button>
           <div class="form-foot">
             <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-prev" data-icon="copy">Copiar do dia anterior</button>
@@ -586,10 +602,18 @@ tbody tr:hover td{background:var(--olive-50)}
             <small class="err"></small>
           </div>
           <div class="row">
-            <div class="field">
-              <label for="at-time">Horário padrão</label>
+            <div class="field" id="f-at-time">
+              <label for="at-time">Início padrão</label>
               <input class="input" type="time" id="at-time">
+              <small class="err"></small>
             </div>
+            <div class="field" id="f-at-end">
+              <label for="at-end">Fim padrão</label>
+              <input class="input" type="time" id="at-end">
+              <small class="err"></small>
+            </div>
+          </div>
+          <div class="row">
             <div class="field">
               <label for="at-prio">Prioridade</label>
               <select class="input" id="at-prio">
@@ -637,9 +661,17 @@ tbody tr:hover td{background:var(--olive-50)}
             <select class="input" id="rt-activity"></select>
             <small class="err"></small>
           </div>
-          <div class="field">
-            <label for="rt-time">Horário</label>
-            <input class="input" type="time" id="rt-time">
+          <div class="row">
+            <div class="field" id="f-rt-time">
+              <label for="rt-time">Início</label>
+              <input class="input" type="time" id="rt-time">
+              <small class="err"></small>
+            </div>
+            <div class="field" id="f-rt-end">
+              <label for="rt-end">Fim</label>
+              <input class="input" type="time" id="rt-end">
+              <small class="err"></small>
+            </div>
           </div>
           <div class="field" id="f-rt-days">
             <label>Dias da semana <span class="req">*</span></label>
@@ -872,6 +904,10 @@ const fromMin = m => `${pad(Math.floor(m / 60) % 24)}:${pad(m % 60)}`;
 const formatShort = iso => iso ? iso.split('-').reverse().join('/') : '';            // AAAA-MM-DD → DD/MM/AAAA
 const formatDM    = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : ''; // → DD/MM
 const formatTime  = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+/** "07:30–09:00", "07:30" ou "" */
+const fmtRange    = (start, end) => start ? (end ? `${start}–${end}` : start) : '';
+/** Valida o fim em relação ao início: devolve a mensagem de erro ou '' */
+const endError    = (start, end) => !end ? '' : !start ? 'Informe também o início.' : end <= start ? 'O fim deve ser depois do início.' : '';
 const initials    = name => name.trim().split(/\s+/).filter(Boolean).map(p => p[0]).filter((_, i, a) => i === 0 || i === a.length - 1).join('').toUpperCase();
 const norm        = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const plural      = (n, s, p) => `${n} ${n === 1 ? s : p}`;
@@ -932,7 +968,10 @@ const CloudAdapter = {
       let firstBase = true, firstDays = true;
       db.doc('painel/base').onSnapshot(snap => {
         const data = snap.exists ? snap.data() : null;
-        if (JSON.stringify(data) !== JSON.stringify(this.base)) {
+        // Enquanto este computador ainda está salvando alterações, a nuvem pode devolver uma versão anterior
+        // (eco de um salvamento antigo). Ignorar evita que ela apague o que acabou de ser feito.
+        const pending = this.isPending('painel/base');
+        if (!pending && JSON.stringify(data) !== JSON.stringify(this.base)) {
           this.base = data ? clone(data) : null;
           this.sent['painel/base'] = JSON.stringify(data);
           if (!firstBase) this.notify();
@@ -944,6 +983,7 @@ const CloudAdapter = {
         let changed = false;
         for (const ch of qs.docChanges()) {
           const id = ch.doc.id;
+          if (this.isPending('dias/' + id)) continue;   // mesmo cuidado, por dia
           if (ch.type === 'removed') { if (this.days[id]) { delete this.days[id]; changed = true; } continue; }
           const data = ch.doc.data();
           if (JSON.stringify(data) !== JSON.stringify(this.days[id])) { this.days[id] = clone(data); changed = true; }
@@ -978,6 +1018,8 @@ const CloudAdapter = {
       this.queue('dias/' + d, this.days[d]);
     }
   },
+  /** Há alteração deste documento esperando para ser enviada ou sendo enviada agora? */
+  isPending(path) { return !!this.queued[path] || !!this.inflight[path]; },
   queue(path, data) { this.queued[path] = data; if (!this.inflight[path]) this.flush(path); },
   async flush(path) {
     this.inflight[path] = true;
@@ -1039,8 +1081,8 @@ const SyncUI = {
      updatedAt: ISO string,
      settings:     { pinHash },
      collaborators:[ { id, name, sector, createdAt } ],
-     activities:   [ { id, description, time:"HH:MM"|"", priority:"alta|normal|baixa", createdAt } ],
-     assignments:  { "AAAA-MM-DD": [ { id, collaboratorId, activityId, time, status:"pendente|andamento|concluida", updatedAt } ] }
+     activities:   [ { id, description, time:"HH:MM"|"" (início), end:"HH:MM"|"" (fim), priority:"alta|normal|baixa", createdAt } ],
+     assignments:  { "AAAA-MM-DD": [ { id, collaboratorId, activityId, time (início), end (fim), status:"pendente|andamento|concluida", updatedAt } ] }
    }
    ========================================================================= */
 const PRIORITY = { alta: { label: 'Alta', ord: 0 }, normal: { label: 'Normal', ord: 1 }, baixa: { label: 'Baixa', ord: 2 } };
@@ -1107,9 +1149,9 @@ const Store = {
       (a.time || '99:99').localeCompare(b.time || '99:99') || a.description.localeCompare(b.description, 'pt-BR'));
   },
   getActivity(id) { return this.state.activities.find(a => a.id === id); },
-  saveActivity({ id, description, time, priority }) {
-    if (id) Object.assign(this.getActivity(id), { description, time, priority });
-    else this.state.activities.push({ id: id = uid(), description, time, priority, createdAt: new Date().toISOString() });
+  saveActivity({ id, description, time, end = '', priority }) {
+    if (id) Object.assign(this.getActivity(id), { description, time, end, priority });
+    else this.state.activities.push({ id: id = uid(), description, time, end, priority, createdAt: new Date().toISOString() });
     this.commit(); return id;
   },
   deleteActivity(id) {
@@ -1134,12 +1176,12 @@ const Store = {
   },
   /** Atribui uma atividade a um ou mais colaboradores. Com 2 ou mais, todos recebem o mesmo
       groupId: é uma tarefa em equipe (status e horário ficam sincronizados). Devolve os ids criados. */
-  addAssignment(date, { collaboratorIds, activityId, time }) {
+  addAssignment(date, { collaboratorIds, activityId, time, end = '' }) {
     const groupId = collaboratorIds.length > 1 ? uid() : null;
     const now = new Date().toISOString();
     const ids = collaboratorIds.map(collaboratorId => {
       const id = uid();
-      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, status: 'pendente', groupId, updatedAt: now });
+      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, end, status: 'pendente', groupId, updatedAt: now });
       return id;
     });
     this.commit(); return ids;
@@ -1156,7 +1198,7 @@ const Store = {
     if (!a) return null;
     a.groupId ||= uid();
     const nid = uid();
-    this.rawDay(date).push({ id: nid, collaboratorId, activityId: a.activityId, time: a.time, status: a.status, groupId: a.groupId, updatedAt: new Date().toISOString() });
+    this.rawDay(date).push({ id: nid, collaboratorId, activityId: a.activityId, time: a.time, end: a.end || '', status: a.status, groupId: a.groupId, updatedAt: new Date().toISOString() });
     this.commit(); return nid;
   },
   /** Atualiza a atribuição e, se for em equipe, as dos colegas também. */
@@ -1218,7 +1260,7 @@ const Store = {
       if (!this._routineOn(r, date) || !this.getCollaborator(r.collaboratorId) || !this.getActivity(r.activityId)) continue;
       const day = this.rawDay(date);
       if (day.some(a => a.routineId === r.id || (a.collaboratorId === r.collaboratorId && a.activityId === r.activityId))) continue;
-      (this.state.assignments[date] ||= []).push({ id: uid(), collaboratorId: r.collaboratorId, activityId: r.activityId, time: r.time,
+      (this.state.assignments[date] ||= []).push({ id: uid(), collaboratorId: r.collaboratorId, activityId: r.activityId, time: r.time, end: r.end || '',
         status: 'pendente', groupId: groupFor(r), routineId: r.id, updatedAt: new Date().toISOString() });
       n++;
     }
@@ -1238,7 +1280,7 @@ const Store = {
     for (const date of dates) {
       for (const a of this.rawDay(date)) {            // itens já criados e ainda pendentes acompanham a edição
         const r = list.find(x => x.id === a.routineId);
-        if (r && a.status === 'pendente') Object.assign(a, { time: r.time, activityId: r.activityId });
+        if (r && a.status === 'pendente') Object.assign(a, { time: r.time, end: r.end || '', activityId: r.activityId });
       }
       this.state.assignments[date] = this.rawDay(date).filter(a => {   // dia da semana desmarcado: sai se ainda pendente
         const r = list.find(x => x.id === a.routineId);
@@ -1250,9 +1292,9 @@ const Store = {
     }
     this.commit();
   },
-  saveRoutine({ id, collaboratorId, activityId, time, weekdays, teamKey = null }) {
-    if (id) Object.assign(this.getRoutine(id), { activityId, time, weekdays });
-    else this.state.routines.push({ id: id = uid(), collaboratorId, activityId, time, weekdays, teamKey, createdAt: new Date().toISOString() });
+  saveRoutine({ id, collaboratorId, activityId, time, end = '', weekdays, teamKey = null }) {
+    if (id) Object.assign(this.getRoutine(id), { activityId, time, end, weekdays });
+    else this.state.routines.push({ id: id = uid(), collaboratorId, activityId, time, end, weekdays, teamKey, createdAt: new Date().toISOString() });
     return id;   // quem chama faz syncRoutines (que salva)
   },
   /** Remove o item da rotina e as atribuições pendentes geradas por ele de hoje em diante. */
@@ -1323,7 +1365,7 @@ const Store = {
   },
   /** <option>s de atividades: avulsas e, se pedido, um grupo "Máquinas" */
   activityOptions(withPriority, withMachines = true) {
-    const opt = a => `<option value="${a.id}">${a.time ? a.time + ' · ' : ''}${esc(a.description)}${withPriority && a.priority === 'alta' ? ' (alta)' : ''}</option>`;
+    const opt = a => `<option value="${a.id}">${a.time ? fmtRange(a.time, a.end) + ' · ' : ''}${esc(a.description)}${withPriority && a.priority === 'alta' ? ' (alta)' : ''}</option>`;
     const loose = this.activities().filter(a => !a.machineId);
     let html = loose.length ? `<optgroup label="Atividades">${loose.map(opt).join('')}</optgroup>` : '';
     const mach = withMachines ? this.state.machines.map(m => this.machineActivity(m.id)).filter(Boolean) : [];
@@ -1344,7 +1386,7 @@ const Store = {
       for (const c of this.state.collaborators) {
         const day = this.rawDay(date);
         if (day.some(a => a.collaboratorId === c.id && (a.cleaningId === cl.id || a.activityId === cl.activityId))) continue;
-        (this.state.assignments[date] ||= []).push({ id: uid(), collaboratorId: c.id, activityId: cl.activityId, time: cl.time,
+        (this.state.assignments[date] ||= []).push({ id: uid(), collaboratorId: c.id, activityId: cl.activityId, time: cl.time, end: cl.end || '',
           status: 'pendente', groupId: null, cleaningId: cl.id, updatedAt: new Date().toISOString() });
         n++;
       }
@@ -1356,14 +1398,14 @@ const Store = {
   saveCleaning({ id, description, time, end, weekdays }) {
     let cl = id && this.getCleaning(id);
     let act = cl && this.getActivity(cl.activityId);
-    if (act) Object.assign(act, { description, time });
-    else { act = { id: uid(), description, time, priority: 'normal', createdAt: new Date().toISOString() }; this.state.activities.push(act); }
+    if (act) Object.assign(act, { description, time, end });
+    else { act = { id: uid(), description, time, end, priority: 'normal', createdAt: new Date().toISOString() }; this.state.activities.push(act); }
     if (cl) Object.assign(cl, { description, time, end, weekdays, activityId: act.id });
     else this.state.cleanings.push(cl = { id: uid(), description, time, end, weekdays, activityId: act.id, createdAt: new Date().toISOString() });
     // hoje e dias futuros já preparados: ajusta pendentes, tira dias desmarcados e inclui quem falta
     for (const date of this._forwardDates()) {
       this.state.assignments[date] = this.rawDay(date).filter(a => !(a.cleaningId === cl.id && a.status === 'pendente' && !this._routineOn(cl, date)));
-      this.rawDay(date).forEach(a => { if (a.cleaningId === cl.id && a.status === 'pendente') Object.assign(a, { time, activityId: act.id }); });
+      this.rawDay(date).forEach(a => { if (a.cleaningId === cl.id && a.status === 'pendente') Object.assign(a, { time, end, activityId: act.id }); });
       if (!this.state.assignments[date].length) delete this.state.assignments[date];
       this._applyCleanings(date, [cl]);
       this.state.routineDays[date] = true;
@@ -1642,7 +1684,7 @@ const Editor = {
         </div>
         ${items.map(a => `
         <div class="as-item ${a.status === 'concluida' ? 'done' : ''}" id="as-${a.id}" data-id="${a.id}">
-          <input class="input" type="time" value="${esc(a.time)}" data-act="time" aria-label="Horário">
+          <div class="times"><input class="input" type="time" value="${esc(a.time)}" data-act="time" aria-label="Início"><span>–</span><input class="input" type="time" value="${esc(a.end || '')}" data-act="end" aria-label="Fim"></div>
           <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}
             ${(() => { const t = Store.teammates(this.refDate, a); return t.length ? `<div class="team">${icon('users')}com ${esc(t.map(c => c.name).join(', '))}</div>` : ''; })()}
             <button type="button" class="link-btn" data-act="join">+ incluir colaborador</button></div>
@@ -1683,7 +1725,7 @@ const Editor = {
     if (!list.length) { box.innerHTML = `<div class="empty">Nenhum resultado para a busca.</div>`; return; }
     box.innerHTML = `<table><thead><tr><th>Horário</th><th>Descrição</th><th>Prioridade</th><th></th></tr></thead><tbody>
       ${list.map(a => `<tr id="at-${a.id}" class="${this.editingActivity === a.id ? 'editing' : ''}">
-        <td class="${a.time ? '' : 'muted'}">${a.time || '—'}</td>
+        <td class="${a.time ? '' : 'muted'}" style="white-space:nowrap">${fmtRange(a.time, a.end) || '—'}</td>
         <td><b>${esc(a.description)}</b></td>
         <td><span class="prio prio-${a.priority}" style="margin:0">${PRIORITY[a.priority].label}</span></td>
         <td class="actions">
@@ -1735,7 +1777,7 @@ const Editor = {
         </div>
         ${items.map(r => { const a = Store.getActivity(r.activityId); return `
         <div class="rt-item ${this.editingRoutine === r.id ? 'flash' : ''}" id="rt-${r.id}">
-          <span class="t">${r.time || '—'}</span>
+          <span class="t">${fmtRange(r.time, r.end) || '—'}</span>
           <span><b>${esc(a.description)}</b><span class="prio prio-${a.priority}">${PRIORITY[a.priority].label}</span>${(() => { const m = Store.routineMates(r); return m.length ? `<div class="team">${icon('users')}com ${esc(m.map(c => c.name).join(', '))}</div>` : ''; })()}</span>
           <span class="rt-days">${weekdaysLabel(r.weekdays)}</span>
           <button type="button" class="btn btn-ghost icon-btn" data-rtedit="${r.id}" title="Editar" aria-label="Editar">${icon('edit')}</button>
@@ -1761,9 +1803,9 @@ const Editor = {
   setRtDays(days) { $$('#rt-days input').forEach(i => i.checked = days.includes(+i.value)); },
   resetRoutineForm(keepSelection = true) {
     this.editingRoutine = null;
-    $('#rt-activity').value = ''; $('#rt-time').value = '';
+    $('#rt-activity').value = ''; $('#rt-time').value = ''; $('#rt-end').value = '';
     if (!keepSelection) { this.rtSelected.clear(); this.setRtDays([1, 2, 3, 4, 5]); }
-    ['f-rt-colabs', 'f-rt-activity', 'f-rt-days'].forEach(f => setFieldError(f));
+    ['f-rt-colabs', 'f-rt-activity', 'f-rt-days', 'f-rt-end'].forEach(f => setFieldError(f));
     $('#routine-form-title').textContent = 'Adicionar à rotina';
     $('#routine-submit').textContent = 'Adicionar à rotina';
     $('#routine-cancel').hidden = true;
@@ -1876,7 +1918,7 @@ const Editor = {
 
   resetActivityForm() {
     this.editingActivity = null;
-    $('#form-activity').reset(); setFieldError('f-at-desc');
+    $('#form-activity').reset(); setFieldError('f-at-desc'); setFieldError('f-at-end');
     $('#activity-form-title').textContent = 'Nova atividade';
     $('#activity-submit').textContent = 'Cadastrar';
     $('#activity-cancel').hidden = true;
@@ -1893,16 +1935,17 @@ const Editor = {
 
     // Atribuir
     $('#as-activity').addEventListener('change', e => {
-      const a = Store.getActivity(e.target.value); $('#as-time').value = a?.time || '';
+      const a = Store.getActivity(e.target.value); $('#as-time').value = a?.time || ''; $('#as-end').value = a?.end || '';
       if (e.target.value) $('#as-machine').value = '';   // atividade avulsa OU máquina
       setFieldError('f-as-activity'); setFieldError('f-as-machine');
     });
     $('#as-machine').addEventListener('change', e => {
       if (e.target.value) $('#as-activity').value = '';
-      const a = Store.machineActivity(e.target.value); $('#as-time').value = a?.time || '';
+      const a = Store.machineActivity(e.target.value); $('#as-time').value = a?.time || ''; $('#as-end').value = a?.end || '';
       setFieldError('f-as-activity'); setFieldError('f-as-machine');
     });
     $('#as-colab').addEventListener('change', () => { setFieldError('f-as-colab'); this.renderTeamPicker(); });
+    ['#as-time', '#as-end'].forEach(sel => $(sel).addEventListener('change', () => setFieldError('f-as-end')));
     $('#as-team-add').addEventListener('change', e => {
       if (!e.target.value) return;
       if (!$('#as-colab').value) { $('#as-colab').value = e.target.value; setFieldError('f-as-colab'); }   // sem principal: vira o principal
@@ -1915,18 +1958,19 @@ const Editor = {
     });
     $('#form-assign').addEventListener('submit', e => {
       e.preventDefault();
-      const collaboratorId = $('#as-colab').value, activityId = this.chosenActivity(), time = $('#as-time').value;
+      const collaboratorId = $('#as-colab').value, activityId = this.chosenActivity(), time = $('#as-time').value, end = $('#as-end').value;
       const ok1 = setFieldError('f-as-colab', collaboratorId ? '' : 'Selecione um colaborador.');
       const ok2 = setFieldError('f-as-activity', activityId ? '' : 'Escolha uma atividade ou uma máquina.');
       setFieldError('f-as-machine');
-      if (!ok1 || !ok2) return;
+      const ok3 = setFieldError('f-as-end', endError(time, end));
+      if (!ok1 || !ok2 || !ok3) return;
       const collaboratorIds = [collaboratorId, ...this.team];
       const busy = collaboratorIds.filter(id => Store.hasAssignment(this.refDate, id, activityId)).map(id => Store.getCollaborator(id).name);
       if (busy.length) {
         setFieldError($('#as-activity').value ? 'f-as-activity' : 'f-as-machine', `Já está atribuída a ${busy.join(', ')} nesta data. Use "+ incluir colaborador" na lista para formar a equipe.`); return;
       }
-      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time });
-      $('#as-activity').value = ''; $('#as-time').value = '';   // mantém o colaborador (e a máquina) para agilizar várias atribuições
+      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time, end });
+      $('#as-activity').value = ''; $('#as-time').value = ''; $('#as-end').value = '';   // mantém o colaborador (e a máquina) para agilizar várias atribuições
       this.team = []; this.renderTeamPicker();
       this.renderDate(); this.renderAssignList(); this.renderCounts(); this.renderCollabs();
       flash('#as-' + ids[0]);
@@ -1954,8 +1998,12 @@ const Editor = {
         Store.updateAssignment(this.refDate, row.dataset.id, { status: e.target.value });
         this.renderAssignList(); this.renderDate(); flash('#as-' + row.dataset.id);
         toast(`Status: ${STATUS[e.target.value]}.` + (Store.teammates(this.refDate, Store.rawDay(this.refDate).find(x => x.id === row.dataset.id)).length ? ' Atualizado para toda a equipe.' : ''));
-      } else if (act === 'time') {
-        Store.updateAssignment(this.refDate, row.dataset.id, { time: e.target.value });
+      } else if (act === 'time' || act === 'end') {
+        const cur = Store.rawDay(this.refDate).find(x => x.id === row.dataset.id) || {};
+        const start = act === 'time' ? e.target.value : cur.time, end = act === 'end' ? e.target.value : (cur.end || '');
+        const err = endError(start, end);
+        if (err) { toast(err, 'error'); this.renderAssignList(); return; }
+        Store.updateAssignment(this.refDate, row.dataset.id, { [act]: e.target.value });
         this.renderAssignList(); flash('#as-' + row.dataset.id);
         toast('Horário atualizado' + (Store.teammates(this.refDate, Store.rawDay(this.refDate).find(x => x.id === row.dataset.id)).length ? ' para toda a equipe.' : '.'));
       }
@@ -2055,15 +2103,16 @@ const Editor = {
         title: 'Nova atividade', submitText: 'Cadastrar',
         fields: [
           { id: 'description', label: 'Descrição', required: true, maxlength: 120, placeholder: 'Ex.: Lixar pés de mesa — lote 42' },
-          { id: 'time', label: 'Horário padrão', type: 'time' },
+          { id: 'time', label: 'Início padrão', type: 'time' },
+          { id: 'end', label: 'Fim padrão', type: 'time' },
           { id: 'priority', label: 'Prioridade', type: 'select', options: [['normal', 'Normal'], ['alta', 'Alta'], ['baixa', 'Baixa']] }
         ],
-        validate: v => ({ description: activityError(cleanText(v.description), v.time) })
+        validate: v => ({ description: activityError(cleanText(v.description), v.time), end: endError(v.time, v.end) })
       });
       if (!v) return;
-      const id = Store.saveActivity({ description: cleanText(v.description), time: v.time, priority: v.priority });
+      const id = Store.saveActivity({ description: cleanText(v.description), time: v.time, end: v.end, priority: v.priority });
       this.renderAssignForm(); this.renderActivities(); this.renderCounts();
-      $('#as-activity').value = id; $('#as-time').value = v.time || ''; setFieldError('f-as-activity');
+      $('#as-activity').value = id; $('#as-time').value = v.time || ''; $('#as-end').value = v.end || ''; setFieldError('f-as-activity');
       toast('Atividade cadastrada e selecionada.');
     });
     $('#co-table').addEventListener('click', async e => {
@@ -2089,13 +2138,16 @@ const Editor = {
     // Atividades
     $('#at-search').addEventListener('input', () => this.renderActivities());
     $('#at-desc').addEventListener('input', () => setFieldError('f-at-desc'));
+    ['#at-time', '#at-end'].forEach(sel => $(sel).addEventListener('change', () => setFieldError('f-at-end')));
     $('#form-activity').addEventListener('submit', e => {
       e.preventDefault();
       const description = cleanText($('#at-desc').value);
-      const time = $('#at-time').value, priority = $('#at-prio').value;
-      if (!setFieldError('f-at-desc', activityError(description, time, this.editingActivity))) return;
+      const time = $('#at-time').value, end = $('#at-end').value, priority = $('#at-prio').value;
+      const okD = setFieldError('f-at-desc', activityError(description, time, this.editingActivity));
+      const okE = setFieldError('f-at-end', endError(time, end));
+      if (!okD || !okE) return;
       const editing = !!this.editingActivity;
-      const id = Store.saveActivity({ id: this.editingActivity, description, time, priority });
+      const id = Store.saveActivity({ id: this.editingActivity, description, time, end, priority });
       this.resetActivityForm(); this.renderActivities(); this.renderAssignForm(); this.renderAssignList(); this.renderCounts();
       flash('#at-' + id);
       toast(editing ? 'Atividade atualizada.' : 'Atividade cadastrada.');
@@ -2107,7 +2159,7 @@ const Editor = {
       if (ed) {
         const a = Store.getActivity(ed.dataset.edit);
         this.editingActivity = a.id;
-        $('#at-desc').value = a.description; $('#at-time').value = a.time || ''; $('#at-prio').value = a.priority;
+        $('#at-desc').value = a.description; $('#at-time').value = a.time || ''; $('#at-end').value = a.end || ''; $('#at-prio').value = a.priority;
         $('#activity-form-title').textContent = 'Editar atividade';
         $('#activity-submit').textContent = 'Salvar alterações';
         $('#activity-cancel').hidden = false; setFieldError('f-at-desc');
@@ -2136,40 +2188,43 @@ const Editor = {
       setFieldError('f-rt-colabs'); this.renderRoutineChecklist();
     });
     $('#rt-none').addEventListener('click', () => { this.rtSelected.clear(); this.renderRoutineChecklist(); });
-    $('#rt-activity').addEventListener('change', e => { const a = Store.getActivity(e.target.value); $('#rt-time').value = a?.time || ''; setFieldError('f-rt-activity'); });
+    $('#rt-activity').addEventListener('change', e => { const a = Store.getActivity(e.target.value); $('#rt-time').value = a?.time || ''; $('#rt-end').value = a?.end || ''; setFieldError('f-rt-activity'); });
+    ['#rt-time', '#rt-end'].forEach(sel => $(sel).addEventListener('change', () => setFieldError('f-rt-end')));
     $('#rt-days').addEventListener('change', () => setFieldError('f-rt-days'));
     $('#rt-qa-activity').addEventListener('click', async () => {
       const v = await formDialog({
         title: 'Nova atividade', submitText: 'Cadastrar',
         fields: [
           { id: 'description', label: 'Descrição', required: true, maxlength: 120, placeholder: 'Ex.: Lixar pés de mesa' },
-          { id: 'time', label: 'Horário padrão', type: 'time' },
+          { id: 'time', label: 'Início padrão', type: 'time' },
+          { id: 'end', label: 'Fim padrão', type: 'time' },
           { id: 'priority', label: 'Prioridade', type: 'select', options: [['normal', 'Normal'], ['alta', 'Alta'], ['baixa', 'Baixa']] }
         ],
-        validate: v => ({ description: activityError(cleanText(v.description), v.time) })
+        validate: v => ({ description: activityError(cleanText(v.description), v.time), end: endError(v.time, v.end) })
       });
       if (!v) return;
-      const id = Store.saveActivity({ description: cleanText(v.description), time: v.time, priority: v.priority });
+      const id = Store.saveActivity({ description: cleanText(v.description), time: v.time, end: v.end, priority: v.priority });
       this.renderRoutine(); this.renderAssignForm(); this.renderActivities(); this.renderCounts();
-      $('#rt-activity').value = id; $('#rt-time').value = v.time || ''; setFieldError('f-rt-activity');
+      $('#rt-activity').value = id; $('#rt-time').value = v.time || ''; $('#rt-end').value = v.end || ''; setFieldError('f-rt-activity');
       toast('Atividade cadastrada e selecionada.');
     });
     $('#form-routine').addEventListener('submit', e => {
       e.preventDefault();
       const editing = this.editingRoutine && Store.getRoutine(this.editingRoutine);
       const ids = editing ? [editing.collaboratorId] : [...this.rtSelected];
-      const activityId = $('#rt-activity').value, time = $('#rt-time').value, weekdays = this.rtDays();
+      const activityId = $('#rt-activity').value, time = $('#rt-time').value, end = $('#rt-end').value, weekdays = this.rtDays();
       const ok1 = setFieldError('f-rt-colabs', ids.length ? '' : 'Marque ao menos um colaborador.');
       const ok2 = setFieldError('f-rt-activity', activityId ? '' : 'Selecione uma atividade.');
       const ok3 = setFieldError('f-rt-days', weekdays.length ? '' : 'Marque ao menos um dia.');
-      if (!ok1 || !ok2 || !ok3) return;
+      const ok4 = setFieldError('f-rt-end', endError(time, end));
+      if (!ok1 || !ok2 || !ok3 || !ok4) return;
       const t = todayISO(), todayIncluded = weekdays.includes(parseISO(t).getDay());
       if (editing) {
         // item em equipe: a mudança vale para todos da equipe
         const team = editing.teamKey ? Store.routines().filter(r => r.teamKey === editing.teamKey) : [editing];
         const clash = team.find(r => Store.hasRoutine(r.collaboratorId, activityId, r.id));
         if (clash) return setFieldError('f-rt-activity', `${Store.getCollaborator(clash.collaboratorId).name} já tem esta atividade na rotina.`);
-        team.forEach(r => Store.saveRoutine({ id: r.id, activityId, time, weekdays }));
+        team.forEach(r => Store.saveRoutine({ id: r.id, activityId, time, end, weekdays }));
         Store.syncRoutines(team.map(r => r.id));
         const id = editing.id;
         this.resetRoutineForm(); this.render(); flash('#rt-' + id);
@@ -2179,7 +2234,7 @@ const Editor = {
       const skipped = ids.length - fresh.length;
       if (!fresh.length) return setFieldError('f-rt-activity', 'Todos os colaboradores marcados já têm esta atividade na rotina.');
       const teamKey = fresh.length > 1 && $('#rt-team').checked ? uid() : null;
-      const created = fresh.map(collaboratorId => Store.saveRoutine({ collaboratorId, activityId, time, weekdays, teamKey }));
+      const created = fresh.map(collaboratorId => Store.saveRoutine({ collaboratorId, activityId, time, end, weekdays, teamKey }));
       Store.syncRoutines(created);
       $('#rt-team').checked = false;
       this.resetRoutineForm(true); this.render();
@@ -2192,7 +2247,7 @@ const Editor = {
         const r = Store.getRoutine(ed.dataset.rtedit);
         this.editingRoutine = r.id;
         this.renderRoutine();
-        $('#rt-activity').value = r.activityId; $('#rt-time').value = r.time || ''; this.setRtDays(r.weekdays);
+        $('#rt-activity').value = r.activityId; $('#rt-time').value = r.time || ''; $('#rt-end').value = r.end || ''; this.setRtDays(r.weekdays);
         const mates = Store.routineMates(r);
         $('#routine-form-title').textContent = `Editar rotina — ${Store.getCollaborator(r.collaboratorId).name}` + (mates.length ? ` (e equipe)` : '');
         $('#routine-submit').textContent = 'Salvar alterações'; $('#routine-cancel').hidden = false;
@@ -2211,7 +2266,7 @@ const Editor = {
         });
         if (!v) return;
         const created = Store.routinesOf(from.id).filter(r => !Store.hasRoutine(v.to, r.activityId))
-          .map(r => Store.saveRoutine({ collaboratorId: v.to, activityId: r.activityId, time: r.time, weekdays: [...r.weekdays] }));
+          .map(r => Store.saveRoutine({ collaboratorId: v.to, activityId: r.activityId, time: r.time, end: r.end || '', weekdays: [...r.weekdays] }));
         if (!created.length) return toast('Esse colaborador já tem todas essas atividades na rotina.', 'info');
         Store.syncRoutines(created); this.render(); flash('#rt-' + created[0]);
         toast(`${plural(created.length, 'atividade copiada', 'atividades copiadas')} para ${Store.getCollaborator(v.to).name}.`);
@@ -2454,7 +2509,7 @@ const TV = {
       <ul class="tv-list">${items.map(a => {
         const t = Store.teammates(today, a);
         return `<li class="tv-item p-${a.activity.priority} s-${a.status}">
-          ${a.time ? `<span class="tv-time">${a.time}</span>` : '<span class="tv-time none"></span>'}
+          ${a.time ? `<span class="tv-time">${a.time}${a.end ? `<small>${a.end}</small>` : ''}</span>` : '<span class="tv-time none"></span>'}
           <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${t.length ? `<span class="tv-with">com ${esc(t.map(c => c.name.split(' ')[0]).join(', '))}</span>` : ''}</span>
         </li>`; }).join('')}</ul>
     </article>`;
