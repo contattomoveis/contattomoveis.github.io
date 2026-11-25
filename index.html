@@ -681,8 +681,7 @@ tr.released td{color:var(--gray-500)}
           <p class="sub">Aparece na TV a partir da data de entrada, até ser liberada.</p>
           <div class="field" id="f-mt-machine">
             <label for="mt-machine">Máquina <span class="req">*</span></label>
-            <input class="input" id="mt-machine" maxlength="60" autocomplete="off" list="machine-list" placeholder="Ex.: Torno CNC 2, Serra circular">
-            <datalist id="machine-list"></datalist>
+            <select class="input" id="mt-machine"></select>
             <small class="err"></small>
           </div>
           <div class="row">
@@ -1778,7 +1777,13 @@ const Editor = {
   /* ---------- Máquinas em manutenção ---------- */
   editingMaint: null,
   renderMaint() {
-    $('#machine-list').innerHTML = Store.maintMachineNames().map(m => `<option value="${esc(m)}">`).join('');
+    // Lista de máquinas: as cadastradas na aba Máquinas (e, ao editar um registro antigo, o nome que ele já tem)
+    const sel = $('#mt-machine'), keep = sel.value;
+    const names = Store.machines().map(m => m.name).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    if (keep && !names.includes(keep)) names.push(keep);
+    sel.innerHTML = `<option value="">${Store.machines().length ? 'Selecione a máquina…' : 'Cadastre as máquinas na aba Máquinas'}</option>` +
+      names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    sel.value = keep;
     if (!$('#mt-date').value) $('#mt-date').value = todayISO();
     const box = $('#mt-table'), list = Store.maintenances(), t = todayISO();
     if (!list.length) { box.innerHTML = `<div class="empty"><strong>Nenhuma máquina em manutenção.</strong>Registre pelo formulário ao lado; ela aparece na TV automaticamente.</div>`; return; }
@@ -1798,6 +1803,12 @@ const Editor = {
           </td></tr>`;
       }).join('')}
       </tbody></table>`;
+  },
+  /** Escolhe a máquina na lista; se o nome não estiver lá (registro antigo), inclui como opção. */
+  setMaintMachine(name) {
+    const sel = $('#mt-machine');
+    if (name && ![...sel.options].some(o => o.value === name)) sel.insertAdjacentHTML('beforeend', `<option value="${esc(name)}">${esc(name)}</option>`);
+    sel.value = name || '';
   },
   resetMaintForm() {
     this.editingMaint = null;
@@ -2222,12 +2233,12 @@ const Editor = {
     });
 
     // Manutenção
-    $('#mt-machine').addEventListener('input', () => setFieldError('f-mt-machine'));
+    $('#mt-machine').addEventListener('change', () => setFieldError('f-mt-machine'));
     $('#form-maint').addEventListener('submit', e => {
       e.preventDefault();
       const machine = cleanText($('#mt-machine').value), date = $('#mt-date').value, forecast = $('#mt-forecast').value, note = cleanText($('#mt-note').value);
       const dup = Store.state.maintenances.find(m => !m.releasedOn && norm(m.machine) === norm(machine) && m.id !== this.editingMaint);
-      const ok1 = setFieldError('f-mt-machine', !machine ? 'Informe a máquina.' : machine.length < 2 ? 'Nome muito curto.' : dup ? 'Esta máquina já está em manutenção. Libere ou edite o registro existente.' : '');
+      const ok1 = setFieldError('f-mt-machine', !machine ? 'Selecione a máquina.' : dup ? 'Esta máquina já está em manutenção. Libere ou edite o registro existente.' : '');
       const ok2 = setFieldError('f-mt-date', date ? '' : 'Informe a data de entrada.');
       const ok3 = setFieldError('f-mt-forecast', forecast && date && forecast < date ? 'A previsão não pode ser antes da entrada.' : '');
       if (!ok1 || !ok2 || !ok3) return;
@@ -2248,7 +2259,7 @@ const Editor = {
       } else if (ed) {
         const m = Store.getMaintenance(ed.dataset.edit);
         this.editingMaint = m.id;
-        $('#mt-machine').value = m.machine; $('#mt-date').value = m.date; $('#mt-forecast').value = m.forecast || ''; $('#mt-note').value = m.note || '';
+        this.setMaintMachine(m.machine); $('#mt-date').value = m.date; $('#mt-forecast').value = m.forecast || ''; $('#mt-note').value = m.note || '';
         $('#maint-form-title').textContent = 'Editar registro'; $('#maint-submit').textContent = 'Salvar alterações'; $('#maint-cancel').hidden = false;
         this.renderMaint(); $('#mt-machine').focus();
       } else if (del) {
