@@ -426,6 +426,83 @@ tbody tr:hover td{background:var(--olive-50)}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* =========================================================================
+   ATRASOS, EXPEDIENTE, EXTENSÃO E RELATÓRIOS
+   ========================================================================= */
+/* Gestão: tarefa atrasada */
+.as-item.late{background:#FDF3F2;box-shadow:inset 4px 0 0 var(--danger)}
+.tag-late{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;background:var(--danger);color:#fff;vertical-align:middle}
+.tag-late svg{width:12px;height:12px}
+.as-item .real{font-size:12px;color:var(--gray-500);font-weight:500;margin-top:2px}
+/* TV: tarefa atrasada */
+.tv-item.late{border-left-color:var(--danger-tv);background:rgba(232,121,107,.16)}
+.tv-item.late .tv-time{color:var(--danger-tv)}
+.tv-tag.atrasada{background:var(--danger-tv);color:var(--charcoal-950);animation:latePulse 1.6s ease-in-out infinite}
+@keyframes latePulse{50%{background:#F5A79C}}
+.tv-card.has-late{border-top-color:var(--danger-tv)}
+.tv-alert{display:flex;align-items:center;gap:calc(var(--u)*.8);padding:calc(var(--u)*.6) calc(var(--u)*1.6);border-radius:999px;background:var(--danger);color:#fff;
+  font-size:calc(var(--u)*2);font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;animation:alertPulse 2s ease-in-out infinite}
+.tv-alert svg{width:calc(var(--u)*2.6);height:calc(var(--u)*2.6)}
+@keyframes alertPulse{50%{box-shadow:0 0 0 calc(var(--u)*.8) rgba(168,65,58,.25)}}
+/* TV: faixa de almoço / expediente estendido */
+.tv-break{flex:none;display:flex;align-items:center;gap:calc(var(--u)*1.6);margin:0 calc(var(--u)*2.4) calc(var(--u)*1.2);padding:calc(var(--u)*1) calc(var(--u)*1.8);
+  background:rgba(184,175,110,.14);border-left:calc(var(--u)*.6) solid var(--olive-300);border-radius:calc(var(--u)*.8);white-space:nowrap;overflow:hidden}
+.tv-break-title{display:flex;align-items:center;gap:calc(var(--u)*.8);font-size:calc(var(--u)*1.7);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--olive-300);flex:none}
+.tv-break-title svg{width:calc(var(--u)*2.6);height:calc(var(--u)*2.6)}
+.tv-break b{font-size:calc(var(--u)*2.4);font-weight:800;color:#F4F4F2}
+.tv-break span{font-size:calc(var(--u)*1.9);color:var(--gray-400);font-weight:600;overflow:hidden;text-overflow:ellipsis}
+/* TV: tela cheia de expediente (início, almoço, volta, fim) */
+.tv-shift{position:absolute;inset:0;z-index:50;display:grid;place-items:center;text-align:center;color:#fff;overflow:hidden;
+  background:radial-gradient(120% 120% at 50% 30%,var(--olive-500) 0%,var(--olive-700) 45%,var(--charcoal-950) 100%);
+  animation:shiftIn 1s cubic-bezier(.22,.61,.36,1) both}
+.tv-shift[data-kind="almoco"]{background:radial-gradient(120% 120% at 50% 30%,#B8862E 0%,#7A5A22 45%,var(--charcoal-950) 100%)}
+.tv-shift[data-kind="volta"]{background:radial-gradient(120% 120% at 50% 30%,var(--olive-400) 0%,var(--olive) 45%,var(--charcoal-950) 100%)}
+.tv-shift[data-kind="fim"],.tv-shift[data-kind="fimext"]{background:radial-gradient(120% 120% at 50% 30%,#4A4A6A 0%,#2A2A3C 45%,var(--charcoal-950) 100%)}
+.tv-shift.leaving{animation:shiftOut .7s ease-in forwards}
+@keyframes shiftIn{from{clip-path:circle(0% at 50% 50%);opacity:.6}to{clip-path:circle(150% at 50% 50%);opacity:1}}
+@keyframes shiftOut{to{opacity:0;transform:scale(1.04)}}
+.tv-shift-inner>*{animation:shiftUp .8s cubic-bezier(.22,.61,.36,1) both}
+.tv-shift-inner>*:nth-child(2){animation-delay:.25s}.tv-shift-inner>*:nth-child(3){animation-delay:.4s}
+.tv-shift-inner>*:nth-child(4){animation-delay:.55s}.tv-shift-inner>*:nth-child(5){animation-delay:.7s}
+@keyframes shiftUp{from{opacity:0;transform:translateY(calc(var(--u)*4))}}
+.tv-shift-icon{display:inline-grid;place-items:center;width:calc(var(--u)*16);height:calc(var(--u)*16);border-radius:50%;background:rgba(255,255,255,.12);margin-bottom:calc(var(--u)*2)}
+.tv-shift-icon svg{width:calc(var(--u)*9);height:calc(var(--u)*9)}
+.tv-shift-time{font-size:calc(var(--u)*7);font-weight:800;letter-spacing:.02em;opacity:.85;font-variant-numeric:tabular-nums;line-height:1}
+.tv-shift h1{margin:calc(var(--u)*1) 0 0;font-size:calc(var(--u)*11);font-weight:800;line-height:1.02;letter-spacing:-.01em}
+.tv-shift p{margin:calc(var(--u)*2) auto 0;max-width:80vw;font-size:calc(var(--u)*3.6);font-weight:600;opacity:.88}
+.tv-shift-next{display:inline-block;margin-top:calc(var(--u)*3.5);padding:calc(var(--u)*1) calc(var(--u)*2.6);border-radius:999px;background:rgba(255,255,255,.14);font-size:calc(var(--u)*2.6);font-weight:700}
+.tv-shift-logo{position:absolute;top:calc(var(--u)*3);left:calc(var(--u)*3);height:calc(var(--u)*7);background:#fff;border-radius:calc(var(--u)*1);padding:calc(var(--u)*.6) calc(var(--u)*1)}
+.tv-shift-clock{position:absolute;top:calc(var(--u)*3);right:calc(var(--u)*4);font-size:calc(var(--u)*4.6);font-weight:800;font-variant-numeric:tabular-nums;opacity:.9}
+.tv-shift-bar{position:absolute;left:0;right:0;bottom:0;height:calc(var(--u)*.8);background:rgba(255,255,255,.12)}
+.tv-shift-bar i{display:block;height:100%;width:0;background:rgba(255,255,255,.75);transition:width 1s linear}
+/* Gestão: expediente, extensão e relatórios */
+.field .team-opt{text-transform:none;letter-spacing:0;font-weight:500;font-size:14px}
+.tabs .tab{padding:14px 8px;font-size:14.5px;gap:6px}
+.tabs{gap:2px}
+.shift-times{display:grid;grid-template-columns:repeat(2,1fr);gap:0 12px}
+.preview-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ex-who{font-size:13px;color:var(--charcoal-700)}
+.ex-extra{font-weight:700;color:var(--olive)}
+.rp-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin-bottom:20px;padding:16px 22px}
+.rp-bar .field{margin:0;min-width:150px}
+.rp-bar .btn{margin-left:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;animation:panelIn .3s var(--ease) both}
+.kpi small{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500)}
+.kpi b{display:block;font-size:28px;font-weight:800;margin-top:4px;color:var(--charcoal);font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--gray-500)}
+.kpi.bad b{color:var(--danger)}
+.rep-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:20px}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th.num{text-align:right}
+.meter{display:flex;align-items:center;gap:8px;min-width:130px}
+.meter i{flex:1;height:8px;border-radius:4px;background:var(--gray-200);overflow:hidden;display:block}
+.meter i em{display:block;height:100%;border-radius:4px;background:var(--olive-400)}
+.meter span{font-variant-numeric:tabular-nums;font-size:13px;min-width:38px;text-align:right;color:var(--charcoal-700)}
+.diff-up{color:var(--danger);font-weight:700}.diff-down{color:var(--success);font-weight:700}
+.late-n{color:var(--danger);font-weight:700}
+.est{color:var(--gray-500);font-weight:600}
 </style>
 </head>
 <body>
@@ -464,13 +541,15 @@ tbody tr:hover td{background:var(--olive-50)}
       </div>
     </div>
     <nav class="tabs" role="tablist" aria-label="Seções">
-      <button class="tab" role="tab" data-tab="atribuicoes" aria-selected="true">Atribuições do dia <span class="count" id="cnt-as">0</span></button>
+      <button class="tab" role="tab" data-tab="atribuicoes" aria-selected="true" title="Atribuições do dia">Atribuições <span class="count" id="cnt-as">0</span></button>
       <button class="tab" role="tab" data-tab="rotina" aria-selected="false">Rotina <span class="count" id="cnt-rt">0</span></button>
       <button class="tab" role="tab" data-tab="colaboradores" aria-selected="false">Colaboradores <span class="count" id="cnt-co">0</span></button>
       <button class="tab" role="tab" data-tab="atividades" aria-selected="false">Atividades <span class="count" id="cnt-at">0</span></button>
       <button class="tab" role="tab" data-tab="maquinas" aria-selected="false">Máquinas <span class="count" id="cnt-mq">0</span></button>
       <button class="tab" role="tab" data-tab="limpeza" aria-selected="false">Limpeza <span class="count" id="cnt-cl">0</span></button>
       <button class="tab" role="tab" data-tab="manutencao" aria-selected="false">Manutenção <span class="count" id="cnt-mt">0</span></button>
+      <button class="tab" role="tab" data-tab="extensao" aria-selected="false" title="Extensão do horário do expediente">Extensão <span class="count" id="cnt-ex">0</span></button>
+      <button class="tab" role="tab" data-tab="relatorios" aria-selected="false">Relatórios</button>
       <button class="tab" role="tab" data-tab="config" aria-selected="false">Configurações</button>
     </nav>
   </header>
@@ -799,9 +878,129 @@ tbody tr:hover td{background:var(--olive-50)}
       </div>
     </section>
 
+    <!-- ---------- EXTENSÃO DE EXPEDIENTE ---------- -->
+    <section class="panel" id="tab-extensao" hidden>
+      <div class="layout">
+        <form class="card" id="form-ext" novalidate>
+          <h2 id="ext-form-title">Estender o expediente</h2>
+          <p class="sub" id="ext-normal"></p>
+          <div class="field" id="f-ex-date">
+            <label for="ex-date">Data <span class="req">*</span></label>
+            <input class="input" type="date" id="ex-date">
+            <small class="err"></small>
+          </div>
+          <div class="row">
+            <div class="field" id="f-ex-start">
+              <label for="ex-start">Início antecipado</label>
+              <input class="input" type="time" id="ex-start">
+              <small class="err"></small>
+            </div>
+            <div class="field" id="f-ex-end">
+              <label for="ex-end">Novo fim <span class="req">*</span></label>
+              <input class="input" type="time" id="ex-end">
+              <small class="err"></small>
+            </div>
+          </div>
+          <div class="field" id="f-ex-who">
+            <div class="label-row"><label>Quem fica</label>
+              <span><button type="button" class="link-btn" id="ex-all">Todos</button><button type="button" class="link-btn" id="ex-none">Nenhum</button></span></div>
+            <label class="team-opt" style="margin:0 0 8px"><input type="checkbox" id="ex-everyone" checked><span><b>Todos os colaboradores</b> — a TV usa o novo horário nas telas de expediente.</span></label>
+            <div class="checklist" id="ex-colabs" hidden></div>
+            <small class="hint" id="ex-count"></small>
+            <small class="err"></small>
+          </div>
+          <div class="field">
+            <label for="ex-reason">Motivo</label>
+            <input class="input" id="ex-reason" maxlength="80" autocomplete="off" placeholder="Ex.: entrega do pedido 1180">
+          </div>
+          <div class="row">
+            <button class="btn btn-primary" type="submit" id="ext-submit" style="flex:1">Registrar extensão</button>
+            <button class="btn btn-secondary" type="button" id="ext-cancel" hidden>Cancelar</button>
+          </div>
+        </form>
+        <div class="card">
+          <div class="toolbar"><h2>Extensões registradas</h2></div>
+          <div class="table-wrap" id="ex-table"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- RELATÓRIOS ---------- -->
+    <section class="panel" id="tab-relatorios" hidden>
+      <div class="card rp-bar">
+        <div class="field">
+          <label for="rp-preset">Período</label>
+          <select class="input" id="rp-preset">
+            <option value="hoje">Hoje</option>
+            <option value="ontem">Ontem</option>
+            <option value="7" selected>Últimos 7 dias</option>
+            <option value="30">Últimos 30 dias</option>
+            <option value="mes">Este mês</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        <div class="field"><label for="rp-from">De</label><input class="input" type="date" id="rp-from"></div>
+        <div class="field"><label for="rp-to">Até</label><input class="input" type="date" id="rp-to"></div>
+        <div class="field"><label for="rp-colab">Colaborador</label><select class="input" id="rp-colab"></select></div>
+        <button class="btn btn-secondary" type="button" id="rp-csv" data-icon="download">Exportar planilha</button>
+      </div>
+      <div class="kpis" id="rp-kpis"></div>
+      <div class="card">
+        <h2>Por colaborador</h2>
+        <p class="sub">Tarefas do período (sem as limpezas gerais), concluídas, no prazo e tempo de trabalho.</p>
+        <div class="table-wrap" id="rp-colabs"></div>
+      </div>
+      <div class="rep-grid">
+        <div class="card">
+          <h2>Por atividade / produto</h2>
+          <p class="sub">Tempo que cada atividade levou, comparado com o previsto.</p>
+          <div class="table-wrap" id="rp-acts"></div>
+        </div>
+        <div class="card">
+          <h2>Por máquina</h2>
+          <p class="sub">Horas de uso e quem operou.</p>
+          <div class="table-wrap" id="rp-machines"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:20px"><b>Como o tempo é medido:</b> do momento em que a tarefa é marcada <b>Em andamento</b> até ser marcada <b>Concluída</b>, descontando o almoço. Quando ninguém marcou o início, conta a partir do horário previsto. Quando falta a marcação de conclusão, usa o tempo previsto (aparece com <span class="est">*</span>). Os dados dos últimos 60 dias ficam disponíveis no relatório.</p>
+    </section>
+
     <!-- ---------- CONFIGURAÇÕES ---------- -->
     <section class="panel" id="tab-config" hidden>
       <div class="config-grid">
+        <form class="card" id="form-shift" novalidate>
+          <h2>Expediente</h2>
+          <p class="sub">Horários que a TV mostra em tela cheia, com transição, nos dias marcados.</p>
+          <div class="shift-times">
+            <div class="field" id="f-sh-start"><label for="sh-start">Início</label><input class="input" type="time" id="sh-start"><small class="err"></small></div>
+            <div class="field" id="f-sh-lunch"><label for="sh-lunch">Almoço</label><input class="input" type="time" id="sh-lunch"><small class="err"></small></div>
+            <div class="field" id="f-sh-back"><label for="sh-back">Volta do almoço</label><input class="input" type="time" id="sh-back"><small class="err"></small></div>
+            <div class="field" id="f-sh-end"><label for="sh-end">Fim do expediente</label><input class="input" type="time" id="sh-end"><small class="err"></small></div>
+          </div>
+          <div class="field" id="f-sh-days">
+            <label>Dias de trabalho</label>
+            <div class="weekdays" id="sh-days"></div>
+            <small class="err"></small>
+          </div>
+          <div class="field">
+            <label for="sh-show">Tempo da tela cheia</label>
+            <select class="input" id="sh-show">
+              <option value="1">1 minuto</option><option value="2">2 minutos</option><option value="3">3 minutos</option>
+              <option value="5">5 minutos</option><option value="10">10 minutos</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit" style="width:100%">Salvar expediente</button>
+          <div class="field" style="margin:16px 0 0">
+            <label>Ver como fica na TV</label>
+            <div class="preview-row">
+              <button type="button" class="btn btn-secondary btn-sm" data-preview="inicio">Início</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-preview="almoco">Almoço</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-preview="volta">Volta</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-preview="fim">Fim</button>
+            </div>
+            <small class="hint">Abre a TV em outra aba, mostrando a tela por 20 segundos.</small>
+          </div>
+        </form>
         <div class="card" id="account-card" hidden>
           <h2>Conta conectada</h2>
           <p class="sub">Os dados ficam salvos na nuvem (Firebase) e aparecem em qualquer computador conectado com uma conta autorizada.</p>
@@ -818,9 +1017,11 @@ tbody tr:hover td{background:var(--olive-50)}
   <header class="tv-head">
     <img class="tv-logo" src="data:image/png;base64,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" alt="Contatto Móveis e Pés de Madeira">
     <div class="tv-date"><small>Atividades do dia</small><strong id="tv-date"></strong></div>
+    <div class="tv-alert" id="tv-alert" hidden></div>
     <div class="tv-clock" id="tv-clock"></div>
   </header>
   <main class="tv-grid" id="tv-grid"></main>
+  <div class="tv-break" id="tv-break" hidden></div>
   <div class="tv-clean" id="tv-clean" hidden></div>
   <div class="tv-maint" id="tv-maint" hidden></div>
   <div class="tv-idle" id="tv-idle" hidden></div>
@@ -829,6 +1030,7 @@ tbody tr:hover td{background:var(--olive-50)}
     <span class="grow"><span class="tv-dots" id="tv-dots" style="display:inline-flex"></span></span>
     <div class="tv-recorp"><small>Powered by</small><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgLTY5NiA2Mzc2IDEzMTEiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iUmVjb3JwIFJlc3VsdGFkb3MgQ29ycG9yYXRpdm9zIj48cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNzQgMFYtNjg4SDY3MFE3NDcgLTY4OCA3OTguNSAtNjU2LjBRODUwIC02MjQgODc2LjAgLTU3Mi4wUTkwMiAtNTIwIDkwMiAtNDYwUTkwMiAtMzkxIDg3MS41IC0zMzcuNVE4NDEgLTI4NCA3ODIgLTI1Mkw5MTggMEg2MzlMNTM1IC0yMTVIMzIxVjBaTTMyMSAtMzg2SDU4M1E2MTEgLTM4NiA2MzAuMCAtNDAzLjVRNjQ5IC00MjEgNjQ5IC00NTJRNjQ5IC00NzMgNjQwLjAgLTQ4Ny41UTYzMSAtNTAyIDYxNi41IC01MDkuNVE2MDIgLTUxNyA1ODMgLTUxN0gzMjFaIE0xMDI3IDBWLTY4OEgxNzYyVi01MTdIMTI3NVYtNDI4SDE2OTVWLTI2NkgxMjc1Vi0xNzFIMTc3MFYwWiBNMjMxMCAxMlEyMTYxIDEyIDIwNjMuMCAtMjguNVExOTY1IC02OSAxOTE2LjUgLTE0OC4wUTE4NjggLTIyNyAxODY4IC0zNDRRMTg2OCAtNTE1IDE5ODEuMCAtNjA3LjVRMjA5NCAtNzAwIDIzMTIgLTcwMFEyNDMyIC03MDAgMjUyMy4wIC02NjIuNVEyNjE0IC02MjUgMjY2NS41IC01NTguNVEyNzE3IC00OTIgMjcxNyAtNDA1SDI0NzdRMjQ3NyAtNDQxIDI0NTYuMCAtNDY5LjBRMjQzNSAtNDk3IDIzOTcuMCAtNTEzLjBRMjM1OSAtNTI5IDIzMDggLTUyOVEyMjQ0IC01MjkgMjIwMi41IC01MDYuMFEyMTYxIC00ODMgMjE0MS41IC00NDQuMFEyMTIyIC00MDUgMjEyMiAtMzU3Vi0zMzJRMjEyMiAtMjg2IDIxNDEuNSAtMjQ2LjVRMjE2MSAtMjA3IDIyMDEuMCAtMTgzLjBRMjI0MSAtMTU5IDIzMDMgLTE1OVEyMzYwIC0xNTkgMjQwMC41IC0xNzQuMFEyNDQxIC0xODkgMjQ2Mi41IC0yMTYuMFEyNDg0IC0yNDMgMjQ4NCAtMjc5SDI3MTdRMjcxNyAtMTk1IDI2NjguNSAtMTI5LjBRMjYyMCAtNjMgMjUyOS4wIC0yNS41UTI0MzggMTIgMjMxMCAxMlogTTMyNzUuNTk4MzgyNzQ5MzI2IDEyLjBRMzEzNS40NjkwMDI2OTU0MTc3IDEyLjAgMzAzMi4yMzQ1MDEzNDc3MDkgLTMxLjBRMjkyOSAtNzQgMjg3My4wIC0xNTMuNVEyODE3IC0yMzMgMjgxNy4wIC0zNDMuNTI2OTcwOTU0MzU2ODRRMjgxNyAtNDU1IDI4NzMuMCAtNTM1LjBRMjkyOSAtNjE1IDMwMzIuMjM0NTAxMzQ3NzA5IC02NTcuNVEzMTM1LjQ2OTAwMjY5NTQxNzcgLTcwMC4wIDMyNzUuNTk4MzgyNzQ5MzI2IC03MDAuMFEzNDE4IC03MDAgMzUyMC41IC02NTcuNVEzNjIzIC02MTUgMzY3OS4wIC01MzUuMFEzNzM1IC00NTUgMzczNS4wIC0zNDMuNTI2OTcwOTU0MzU2ODRRMzczNSAtMjMzIDM2NzkuMCAtMTUzLjVRMzYyMyAtNzQgMzUyMC41IC0zMS4wUTM0MTggMTIgMzI3NS41OTgzODI3NDkzMjYgMTIuMFpNMzI3NiAtMTU5UTMzMjMgLTE1OSAzMzYxLjAgLTE3MS41UTMzOTkgLTE4NCAzNDI2LjAgLTIwNy41UTM0NTMgLTIzMSAzNDY3LjAgLTI2My4wODMzMzMzMzMzMzMzN1EzNDgxLjAgLTI5NS4xNjY2NjY2NjY2NjY3IDM0ODEgLTMzM1YtMzU3UTM0ODEuMCAtMzk0LjYzMDEzNjk4NjMwMTM1IDM0NjcuMCAtNDI2LjMxNTA2ODQ5MzE1MDY1UTM0NTMgLTQ1OCAzNDI2LjAgLTQ4MS4wUTMzOTkgLTUwNCAzMzYxLjAgLTUxNi41UTMzMjMgLTUyOSAzMjc2IC01MjlRMzIyOSAtNTI5IDMxOTEuMCAtNTE2LjVRMzE1MyAtNTA0IDMxMjYuMCAtNDgxLjBRMzA5OSAtNDU4IDMwODUuMCAtNDI2LjMxNTA2ODQ5MzE1MDY1UTMwNzEuMCAtMzk0LjYzMDEzNjk4NjMwMTM1IDMwNzEgLTM1N1YtMzMzUTMwNzEuMCAtMjk1LjE2NjY2NjY2NjY2NjcgMzA4NS4wIC0yNjMuMDgzMzMzMzMzMzMzMzdRMzA5OSAtMjMxIDMxMjYuMCAtMjA3LjVRMzE1MyAtMTg0IDMxOTEuMCAtMTcxLjVRMzIyOSAtMTU5IDMyNzYgLTE1OVogTTM4NjQgMFYtNjg4SDQ0NjBRNDUzNyAtNjg4IDQ1ODguNSAtNjU2LjBRNDY0MCAtNjI0IDQ2NjYuMCAtNTcyLjBRNDY5MiAtNTIwIDQ2OTIgLTQ2MFE0NjkyIC0zOTEgNDY2MS41IC0zMzcuNVE0NjMxIC0yODQgNDU3MiAtMjUyTDQ3MDggMEg0NDI5TDQzMjUgLTIxNUg0MTExVjBaTTQxMTEgLTM4Nkg0MzczUTQ0MDEgLTM4NiA0NDIwLjAgLTQwMy41UTQ0MzkgLTQyMSA0NDM5IC00NTJRNDQzOSAtNDczIDQ0MzAuMCAtNDg3LjVRNDQyMSAtNTAyIDQ0MDYuNSAtNTA5LjVRNDM5MiAtNTE3IDQzNzMgLTUxN0g0MTExWiBNNDgxNyAwVi02ODhINTM3MFE1NDM4IC02ODggNTQ5MC4wIC02NTcuNVE1NTQyIC02MjcgNTU3MS4wIC01NzIuNVE1NjAwIC01MTggNTYwMC4wIC00NDcuMDE0ODE0ODE0ODE0OFE1NjAwIC0zNzQgNTU3MC41IC0zMTkuMFE1NTQxIC0yNjQgNTQ4OS4wIC0yMzQuMFE1NDM3IC0yMDQgNTM3MCAtMjA0SDUwNjRWMFpNNTA2NCAtMzc1SDUzMDFRNTMzOS4zMzMzMzMzMzMzMzMgLTM3NS4wIDUzNTcuNjY2NjY2NjY2NjY2IC0zOTMuMDY1MDY4NDkzMTUwNjVRNTM3Ni4wIC00MTEuMTMwMTM2OTg2MzAxMzUgNTM3Ni4wIC00NDYuMDc1MzQyNDY1NzUzNFE1Mzc2IC00NzAgNTM2Ny40NzE0Mjg1NzE0MjkgLTQ4NS41NTQwNTQwNTQwNTQwNlE1MzU4Ljk0Mjg1NzE0Mjg1NyAtNTAxLjEwODEwODEwODEwODEgNTM0Mi40NzE0Mjg1NzE0MjkgLTUwOS4wNTQwNTQwNTQwNTQwNlE1MzI2IC01MTcgNTMwMSAtNTE3SDUwNjRaIi8+PHBhdGggZmlsbD0iIzZEQUMzQiIgZD0iTTYwMDYgLTY4NiBMNjE1NiAtNjg2IEw1ODY4IDAgTDU3MTggMCBaIE02MjI2IC02ODYgTDYzNzYgLTY4NiBMNjA4OCAwIEw1OTM4IDAgWiIvPjxwYXRoIGZpbGw9IiNGRkZGRkYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgNjA1KSBzY2FsZSgwLjMyNTE2KSIgZD0iTTEwNSAwVi03MDBIMzc4UTUxNCAtNzAwIDU5Mi4wIC02MzUuNVE2NzAgLTU3MSA2NzAgLTQ1NlE2NzAgLTM4MCA2MzUuMCAtMzI1LjVRNjAwIC0yNzEgNTM1IC0yNDJRNTI2IC0yMzggNTE2IC0yMzRMNjgyIDBINTczTDQyMiAtMjE1UTQwMSAtMjEzIDM3OCAtMjEzSDIwNVYwWk0yMDUgLTI5OEgzNzVRNDcxIC0yOTggNTIwLjUgLTMzOS41UTU3MCAtMzgxIDU3MC4wIC00NTYuMFE1NzAgLTUzMSA1MjAuNSAtNTcyLjBRNDcxIC02MTMgMzc1IC02MTNIMjA1WiBNMTAxMiAwVi03MDBIMTUwNlYtNjEzSDExMTJWLTM5OEgxNDYzVi0zMTNIMTExMlYtODdIMTUyMFYwWiBNMjA2NiA4UTE5ODYgOCAxOTEzLjAgLTE2LjVRMTg0MCAtNDEgMTc5OCAtODBMMTgzNSAtMTU4UTE4NzUgLTEyMyAxOTM3LjAgLTEwMC4wUTE5OTkgLTc3IDIwNjYgLTc3UTIxMjcgLTc3IDIxNjUuMCAtOTEuMFEyMjAzIC0xMDUgMjIyMS4wIC0xMjkuNVEyMjM5IC0xNTQgMjIzOSAtMTg1UTIyMzkgLTIyMSAyMjE1LjUgLTI0My4wUTIxOTIgLTI2NSAyMTU0LjUgLTI3OC41UTIxMTcgLTI5MiAyMDcyLjAgLTMwMi4wUTIwMjcgLTMxMiAxOTgxLjUgLTMyNS41UTE5MzYgLTMzOSAxODk4LjUgLTM2MC4wUTE4NjEgLTM4MSAxODM4LjAgLTQxNi41UTE4MTUgLTQ1MiAxODE1IC01MDhRMTgxNSAtNTYyIDE4NDMuNSAtNjA3LjVRMTg3MiAtNjUzIDE5MzEuNSAtNjgwLjVRMTk5MSAtNzA4IDIwODMgLTcwOFEyMTQ0IC03MDggMjIwNC4wIC02OTIuMFEyMjY0IC02NzYgMjMwOCAtNjQ2TDIyNzUgLTU2NlEyMjMwIC01OTYgMjE4MC4wIC02MDkuNVEyMTMwIC02MjMgMjA4MyAtNjIzUTIwMjQgLTYyMyAxOTg2LjAgLTYwOC4wUTE5NDggLTU5MyAxOTMwLjUgLTU2OC4wUTE5MTMgLTU0MyAxOTEzIC01MTJRMTkxMyAtNDc1IDE5MzYuNSAtNDUzLjBRMTk2MCAtNDMxIDE5OTcuNSAtNDE4LjBRMjAzNSAtNDA1IDIwODAuMCAtMzk0LjVRMjEyNSAtMzg0IDIxNzAuNSAtMzcxLjBRMjIxNiAtMzU4IDIyNTMuNSAtMzM3LjBRMjI5MSAtMzE2IDIzMTQuMCAtMjgxLjBRMjMzNyAtMjQ2IDIzMzcgLTE5MVEyMzM3IC0xMzggMjMwOC4wIC05Mi41UTIyNzkgLTQ3IDIyMTguNSAtMTkuNVEyMTU4IDggMjA2NiA4WiBNMjk1MyA4UTI4MTUgOCAyNzM2LjAgLTcxLjBRMjY1NyAtMTUwIDI2NTcgLTMwMlYtNzAwSDI3NTdWLTMwNlEyNzU3IC0xODkgMjgwOC41IC0xMzUuMFEyODYwIC04MSAyOTU0IC04MVEzMDQ5IC04MSAzMTAwLjUgLTEzNS4wUTMxNTIgLTE4OSAzMTUyIC0zMDZWLTcwMEgzMjQ5Vi0zMDJRMzI0OSAtMTUwIDMxNzAuNSAtNzEuMFEzMDkyIDggMjk1MyA4WiBNMzYzNCAwVi03MDBIMzczNFYtODdINDExM1YwWiBNNDU0NyAwVi02MTNINDMwN1YtNzAwSDQ4ODZWLTYxM0g0NjQ2VjBaIE01MDY5IDAgNTM4NiAtNzAwSDU0ODVMNTgwMyAwSDU2OThMNTYyMSAtMTc1SDUyNDlMNTE3MiAwWk01NTg2IC0yNTUgNTQzNSAtNTk4IDUyODQgLTI1NVogTTYwODcgMFYtNzAwSDYzODJRNjQ5NCAtNzAwIDY1NzkuNSAtNjU2LjBRNjY2NSAtNjEyIDY3MTIuNSAtNTMzLjBRNjc2MCAtNDU0IDY3NjAgLTM1MFE2NzYwIC0yNDYgNjcxMi41IC0xNjcuMFE2NjY1IC04OCA2NTc5LjUgLTQ0LjBRNjQ5NCAwIDYzODIgMFpNNjE4NyAtODdINjM3NlE2NDYzIC04NyA2NTI2LjUgLTEyMC4wUTY1OTAgLTE1MyA2NjI1LjAgLTIxMi41UTY2NjAgLTI3MiA2NjYwIC0zNTBRNjY2MCAtNDI5IDY2MjUuMCAtNDg4LjBRNjU5MCAtNTQ3IDY1MjYuNSAtNTgwLjBRNjQ2MyAtNjEzIDYzNzYgLTYxM0g2MTg3WiBNNzQwOSA4UTczMjkgOCA3MjYwLjUgLTE5LjBRNzE5MiAtNDYgNzE0Mi4wIC05NC41UTcwOTIgLTE0MyA3MDY0LjAgLTIwOC4wUTcwMzYgLTI3MyA3MDM2IC0zNTBRNzAzNiAtNDI3IDcwNjQuMCAtNDkyLjBRNzA5MiAtNTU3IDcxNDIuMCAtNjA1LjVRNzE5MiAtNjU0IDcyNjAuMCAtNjgxLjBRNzMyOCAtNzA4IDc0MDkgLTcwOFE3NDg5IC03MDggNzU1Ni41IC02ODEuNVE3NjI0IC02NTUgNzY3NC41IC02MDYuNVE3NzI1IC01NTggNzc1Mi41IC00OTMuMFE3NzgwIC00MjggNzc4MCAtMzUwUTc3ODAgLTI3MiA3NzUyLjUgLTIwNy4wUTc3MjUgLTE0MiA3Njc0LjUgLTkzLjVRNzYyNCAtNDUgNzU1Ni41IC0xOC41UTc0ODkgOCA3NDA5IDhaTTc0MDkgLTgxUTc0NjcgLTgxIDc1MTYuNSAtMTAxLjBRNzU2NiAtMTIxIDc2MDIuNSAtMTU3LjVRNzYzOSAtMTk0IDc2NTkuNSAtMjQzLjBRNzY4MCAtMjkyIDc2ODAgLTM1MFE3NjgwIC00MDggNzY1OS41IC00NTcuMFE3NjM5IC01MDYgNzYwMi41IC01NDIuNVE3NTY2IC01NzkgNzUxNi41IC01OTkuMFE3NDY3IC02MTkgNzQwOSAtNjE5UTczNTAgLTYxOSA3MzAwLjUgLTU5OS4wUTcyNTEgLTU3OSA3MjE0LjAgLTU0Mi41UTcxNzcgLTUwNiA3MTU2LjUgLTQ1Ny4wUTcxMzYgLTQwOCA3MTM2IC0zNTBRNzEzNiAtMjkyIDcxNTYuNSAtMjQzLjBRNzE3NyAtMTk0IDcyMTQuMCAtMTU3LjVRNzI1MSAtMTIxIDczMDAuNSAtMTAxLjBRNzM1MCAtODEgNzQwOSAtODFaIE04MzE3IDhRODIzNyA4IDgxNjQuMCAtMTYuNVE4MDkxIC00MSA4MDQ5IC04MEw4MDg2IC0xNThRODEyNiAtMTIzIDgxODguMCAtMTAwLjBRODI1MCAtNzcgODMxNyAtNzdRODM3OCAtNzcgODQxNi4wIC05MS4wUTg0NTQgLTEwNSA4NDcyLjAgLTEyOS41UTg0OTAgLTE1NCA4NDkwIC0xODVRODQ5MCAtMjIxIDg0NjYuNSAtMjQzLjBRODQ0MyAtMjY1IDg0MDUuNSAtMjc4LjVRODM2OCAtMjkyIDgzMjMuMCAtMzAyLjBRODI3OCAtMzEyIDgyMzIuNSAtMzI1LjVRODE4NyAtMzM5IDgxNDkuNSAtMzYwLjBRODExMiAtMzgxIDgwODkuMCAtNDE2LjVRODA2NiAtNDUyIDgwNjYgLTUwOFE4MDY2IC01NjIgODA5NC41IC02MDcuNVE4MTIzIC02NTMgODE4Mi41IC02ODAuNVE4MjQyIC03MDggODMzNCAtNzA4UTgzOTUgLTcwOCA4NDU1LjAgLTY5Mi4wUTg1MTUgLTY3NiA4NTU5IC02NDZMODUyNiAtNTY2UTg0ODEgLTU5NiA4NDMxLjAgLTYwOS41UTgzODEgLTYyMyA4MzM0IC02MjNRODI3NSAtNjIzIDgyMzcuMCAtNjA4LjBRODE5OSAtNTkzIDgxODEuNSAtNTY4LjBRODE2NCAtNTQzIDgxNjQgLTUxMlE4MTY0IC00NzUgODE4Ny41IC00NTMuMFE4MjExIC00MzEgODI0OC41IC00MTguMFE4Mjg2IC00MDUgODMzMS4wIC0zOTQuNVE4Mzc2IC0zODQgODQyMS41IC0zNzEuMFE4NDY3IC0zNTggODUwNC41IC0zMzcuMFE4NTQyIC0zMTYgODU2NS4wIC0yODEuMFE4NTg4IC0yNDYgODU4OCAtMTkxUTg1ODggLTEzOCA4NTU5LjAgLTkyLjVRODUzMCAtNDcgODQ2OS41IC0xOS41UTg0MDkgOCA4MzE3IDhaIE05Njc2IDhROTU5NiA4IDk1MjguNSAtMTguNVE5NDYxIC00NSA5NDExLjUgLTkzLjVROTM2MiAtMTQyIDkzMzQuMCAtMjA3LjBROTMwNiAtMjcyIDkzMDYgLTM1MFE5MzA2IC00MjggOTMzNC4wIC00OTMuMFE5MzYyIC01NTggOTQxMi4wIC02MDYuNVE5NDYyIC02NTUgOTUyOS41IC02ODEuNVE5NTk3IC03MDggOTY3NyAtNzA4UTk3NTggLTcwOCA5ODI2LjUgLTY4MC41UTk4OTUgLTY1MyA5OTQzIC01OTlMOTg3OCAtNTM2UTk4MzggLTU3OCA5Nzg4LjAgLTU5OC41UTk3MzggLTYxOSA5NjgxIC02MTlROTYyMiAtNjE5IDk1NzEuNSAtNTk5LjBROTUyMSAtNTc5IDk0ODQuMCAtNTQzLjBROTQ0NyAtNTA3IDk0MjYuNSAtNDU3LjVROTQwNiAtNDA4IDk0MDYgLTM1MFE5NDA2IC0yOTIgOTQyNi41IC0yNDIuNVE5NDQ3IC0xOTMgOTQ4NC4wIC0xNTcuMFE5NTIxIC0xMjEgOTU3MS41IC0xMDEuMFE5NjIyIC04MSA5NjgxIC04MVE5NzM4IC04MSA5Nzg4LjAgLTEwMS41UTk4MzggLTEyMiA5ODc4IC0xNjVMOTk0MyAtMTAyUTk4OTUgLTQ4IDk4MjYuNSAtMjAuMFE5NzU4IDggOTY3NiA4WiBNMTA1NzIgOFExMDQ5MiA4IDEwNDIzLjUgLTE5LjBRMTAzNTUgLTQ2IDEwMzA1LjAgLTk0LjVRMTAyNTUgLTE0MyAxMDIyNy4wIC0yMDguMFExMDE5OSAtMjczIDEwMTk5IC0zNTBRMTAxOTkgLTQyNyAxMDIyNy4wIC00OTIuMFExMDI1NSAtNTU3IDEwMzA1LjAgLTYwNS41UTEwMzU1IC02NTQgMTA0MjMuMCAtNjgxLjBRMTA0OTEgLTcwOCAxMDU3MiAtNzA4UTEwNjUyIC03MDggMTA3MTkuNSAtNjgxLjVRMTA3ODcgLTY1NSAxMDgzNy41IC02MDYuNVExMDg4OCAtNTU4IDEwOTE1LjUgLTQ5My4wUTEwOTQzIC00MjggMTA5NDMgLTM1MFExMDk0MyAtMjcyIDEwOTE1LjUgLTIwNy4wUTEwODg4IC0xNDIgMTA4MzcuNSAtOTMuNVExMDc4NyAtNDUgMTA3MTkuNSAtMTguNVExMDY1MiA4IDEwNTcyIDhaTTEwNTcyIC04MVExMDYzMCAtODEgMTA2NzkuNSAtMTAxLjBRMTA3MjkgLTEyMSAxMDc2NS41IC0xNTcuNVExMDgwMiAtMTk0IDEwODIyLjUgLTI0My4wUTEwODQzIC0yOTIgMTA4NDMgLTM1MFExMDg0MyAtNDA4IDEwODIyLjUgLTQ1Ny4wUTEwODAyIC01MDYgMTA3NjUuNSAtNTQyLjVRMTA3MjkgLTU3OSAxMDY3OS41IC01OTkuMFExMDYzMCAtNjE5IDEwNTcyIC02MTlRMTA1MTMgLTYxOSAxMDQ2My41IC01OTkuMFExMDQxNCAtNTc5IDEwMzc3LjAgLTU0Mi41UTEwMzQwIC01MDYgMTAzMTkuNSAtNDU3LjBRMTAyOTkgLTQwOCAxMDI5OSAtMzUwUTEwMjk5IC0yOTIgMTAzMTkuNSAtMjQzLjBRMTAzNDAgLTE5NCAxMDM3Ny4wIC0xNTcuNVExMDQxNCAtMTIxIDEwNDYzLjUgLTEwMS4wUTEwNTEzIC04MSAxMDU3MiAtODFaIE0xMTI3NiAwVi03MDBIMTE1NDlRMTE2ODUgLTcwMCAxMTc2My4wIC02MzUuNVExMTg0MSAtNTcxIDExODQxIC00NTZRMTE4NDEgLTM4MCAxMTgwNi4wIC0zMjUuNVExMTc3MSAtMjcxIDExNzA2IC0yNDJRMTE2OTcgLTIzOCAxMTY4NyAtMjM0TDExODUzIDBIMTE3NDRMMTE1OTMgLTIxNVExMTU3MiAtMjEzIDExNTQ5IC0yMTNIMTEzNzZWMFpNMTEzNzYgLTI5OEgxMTU0NlExMTY0MiAtMjk4IDExNjkxLjUgLTMzOS41UTExNzQxIC0zODEgMTE3NDEuMCAtNDU2LjBRMTE3NDEgLTUzMSAxMTY5MS41IC01NzIuMFExMTY0MiAtNjEzIDExNTQ2IC02MTNIMTEzNzZaIE0xMjE4MyAwVi03MDBIMTI0NTZRMTI1NDggLTcwMCAxMjYxMy4wIC02NzEuMFExMjY3OCAtNjQyIDEyNzEzLjAgLTU4Ny4wUTEyNzQ4IC01MzIgMTI3NDguMCAtNDU2LjBRMTI3NDggLTM4MCAxMjcxMy4wIC0zMjUuNVExMjY3OCAtMjcxIDEyNjEzLjAgLTI0MS41UTEyNTQ4IC0yMTIgMTI0NTYgLTIxMkgxMjI4M1YwWk0xMjI4MyAtMjk5SDEyNDUzUTEyNTQ5IC0yOTkgMTI1OTguNSAtMzQwLjBRMTI2NDggLTM4MSAxMjY0OC4wIC00NTYuMFExMjY0OCAtNTMxIDEyNTk4LjUgLTU3Mi4wUTEyNTQ5IC02MTMgMTI0NTMgLTYxM0gxMjI4M1ogTTEzNDAxIDhRMTMzMjEgOCAxMzI1Mi41IC0xOS4wUTEzMTg0IC00NiAxMzEzNC4wIC05NC41UTEzMDg0IC0xNDMgMTMwNTYuMCAtMjA4LjBRMTMwMjggLTI3MyAxMzAyOCAtMzUwUTEzMDI4IC00MjcgMTMwNTYuMCAtNDkyLjBRMTMwODQgLTU1NyAxMzEzNC4wIC02MDUuNVExMzE4NCAtNjU0IDEzMjUyLjAgLTY4MS4wUTEzMzIwIC03MDggMTM0MDEgLTcwOFExMzQ4MSAtNzA4IDEzNTQ4LjUgLTY4MS41UTEzNjE2IC02NTUgMTM2NjYuNSAtNjA2LjVRMTM3MTcgLTU1OCAxMzc0NC41IC00OTMuMFExMzc3MiAtNDI4IDEzNzcyIC0zNTBRMTM3NzIgLTI3MiAxMzc0NC41IC0yMDcuMFExMzcxNyAtMTQyIDEzNjY2LjUgLTkzLjVRMTM2MTYgLTQ1IDEzNTQ4LjUgLTE4LjVRMTM0ODEgOCAxMzQwMSA4Wk0xMzQwMSAtODFRMTM0NTkgLTgxIDEzNTA4LjUgLTEwMS4wUTEzNTU4IC0xMjEgMTM1OTQuNSAtMTU3LjVRMTM2MzEgLTE5NCAxMzY1MS41IC0yNDMuMFExMzY3MiAtMjkyIDEzNjcyIC0zNTBRMTM2NzIgLTQwOCAxMzY1MS41IC00NTcuMFExMzYzMSAtNTA2IDEzNTk0LjUgLTU0Mi41UTEzNTU4IC01NzkgMTM1MDguNSAtNTk5LjBRMTM0NTkgLTYxOSAxMzQwMSAtNjE5UTEzMzQyIC02MTkgMTMyOTIuNSAtNTk5LjBRMTMyNDMgLTU3OSAxMzIwNi4wIC01NDIuNVExMzE2OSAtNTA2IDEzMTQ4LjUgLTQ1Ny4wUTEzMTI4IC00MDggMTMxMjggLTM1MFExMzEyOCAtMjkyIDEzMTQ4LjUgLTI0My4wUTEzMTY5IC0xOTQgMTMyMDYuMCAtMTU3LjVRMTMyNDMgLTEyMSAxMzI5Mi41IC0xMDEuMFExMzM0MiAtODEgMTM0MDEgLTgxWiBNMTQxMDUgMFYtNzAwSDE0Mzc4UTE0NTE0IC03MDAgMTQ1OTIuMCAtNjM1LjVRMTQ2NzAgLTU3MSAxNDY3MCAtNDU2UTE0NjcwIC0zODAgMTQ2MzUuMCAtMzI1LjVRMTQ2MDAgLTI3MSAxNDUzNSAtMjQyUTE0NTI2IC0yMzggMTQ1MTYgLTIzNEwxNDY4MiAwSDE0NTczTDE0NDIyIC0yMTVRMTQ0MDEgLTIxMyAxNDM3OCAtMjEzSDE0MjA1VjBaTTE0MjA1IC0yOThIMTQzNzVRMTQ0NzEgLTI5OCAxNDUyMC41IC0zMzkuNVExNDU3MCAtMzgxIDE0NTcwLjAgLTQ1Ni4wUTE0NTcwIC01MzEgMTQ1MjAuNSAtNTcyLjBRMTQ0NzEgLTYxMyAxNDM3NSAtNjEzSDE0MjA1WiBNMTQ5MDYgMCAxNTIyMyAtNzAwSDE1MzIyTDE1NjQwIDBIMTU1MzVMMTU0NTggLTE3NUgxNTA4NkwxNTAwOSAwWk0xNTQyMyAtMjU1IDE1MjcyIC01OTggMTUxMjEgLTI1NVogTTE2MDYzIDBWLTYxM0gxNTgyM1YtNzAwSDE2NDAyVi02MTNIMTYxNjJWMFogTTE2NjkxIDBWLTcwMEgxNjc5MVYwWiBNMTczODMgMCAxNzA3NSAtNzAwSDE3MTgzTDE3NDM1IC0xMjVMMTc2ODkgLTcwMEgxNzc4OUwxNzQ4MiAwWiBNMTgzODkgOFExODMwOSA4IDE4MjQwLjUgLTE5LjBRMTgxNzIgLTQ2IDE4MTIyLjAgLTk0LjVRMTgwNzIgLTE0MyAxODA0NC4wIC0yMDguMFExODAxNiAtMjczIDE4MDE2IC0zNTBRMTgwMTYgLTQyNyAxODA0NC4wIC00OTIuMFExODA3MiAtNTU3IDE4MTIyLjAgLTYwNS41UTE4MTcyIC02NTQgMTgyNDAuMCAtNjgxLjBRMTgzMDggLTcwOCAxODM4OSAtNzA4UTE4NDY5IC03MDggMTg1MzYuNSAtNjgxLjVRMTg2MDQgLTY1NSAxODY1NC41IC02MDYuNVExODcwNSAtNTU4IDE4NzMyLjUgLTQ5My4wUTE4NzYwIC00MjggMTg3NjAgLTM1MFExODc2MCAtMjcyIDE4NzMyLjUgLTIwNy4wUTE4NzA1IC0xNDIgMTg2NTQuNSAtOTMuNVExODYwNCAtNDUgMTg1MzYuNSAtMTguNVExODQ2OSA4IDE4Mzg5IDhaTTE4Mzg5IC04MVExODQ0NyAtODEgMTg0OTYuNSAtMTAxLjBRMTg1NDYgLTEyMSAxODU4Mi41IC0xNTcuNVExODYxOSAtMTk0IDE4NjM5LjUgLTI0My4wUTE4NjYwIC0yOTIgMTg2NjAgLTM1MFExODY2MCAtNDA4IDE4NjM5LjUgLTQ1Ny4wUTE4NjE5IC01MDYgMTg1ODIuNSAtNTQyLjVRMTg1NDYgLTU3OSAxODQ5Ni41IC01OTkuMFExODQ0NyAtNjE5IDE4Mzg5IC02MTlRMTgzMzAgLTYxOSAxODI4MC41IC01OTkuMFExODIzMSAtNTc5IDE4MTk0LjAgLTU0Mi41UTE4MTU3IC01MDYgMTgxMzYuNSAtNDU3LjBRMTgxMTYgLTQwOCAxODExNiAtMzUwUTE4MTE2IC0yOTIgMTgxMzYuNSAtMjQzLjBRMTgxNTcgLTE5NCAxODE5NC4wIC0xNTcuNVExODIzMSAtMTIxIDE4MjgwLjUgLTEwMS4wUTE4MzMwIC04MSAxODM4OSAtODFaIE0xOTI5NyA4UTE5MjE3IDggMTkxNDQuMCAtMTYuNVExOTA3MSAtNDEgMTkwMjkgLTgwTDE5MDY2IC0xNThRMTkxMDYgLTEyMyAxOTE2OC4wIC0xMDAuMFExOTIzMCAtNzcgMTkyOTcgLTc3UTE5MzU4IC03NyAxOTM5Ni4wIC05MS4wUTE5NDM0IC0xMDUgMTk0NTIuMCAtMTI5LjVRMTk0NzAgLTE1NCAxOTQ3MCAtMTg1UTE5NDcwIC0yMjEgMTk0NDYuNSAtMjQzLjBRMTk0MjMgLTI2NSAxOTM4NS41IC0yNzguNVExOTM0OCAtMjkyIDE5MzAzLjAgLTMwMi4wUTE5MjU4IC0zMTIgMTkyMTIuNSAtMzI1LjVRMTkxNjcgLTMzOSAxOTEyOS41IC0zNjAuMFExOTA5MiAtMzgxIDE5MDY5LjAgLTQxNi41UTE5MDQ2IC00NTIgMTkwNDYgLTUwOFExOTA0NiAtNTYyIDE5MDc0LjUgLTYwNy41UTE5MTAzIC02NTMgMTkxNjIuNSAtNjgwLjVRMTkyMjIgLTcwOCAxOTMxNCAtNzA4UTE5Mzc1IC03MDggMTk0MzUuMCAtNjkyLjBRMTk0OTUgLTY3NiAxOTUzOSAtNjQ2TDE5NTA2IC01NjZRMTk0NjEgLTU5NiAxOTQxMS4wIC02MDkuNVExOTM2MSAtNjIzIDE5MzE0IC02MjNRMTkyNTUgLTYyMyAxOTIxNy4wIC02MDguMFExOTE3OSAtNTkzIDE5MTYxLjUgLTU2OC4wUTE5MTQ0IC01NDMgMTkxNDQgLTUxMlExOTE0NCAtNDc1IDE5MTY3LjUgLTQ1My4wUTE5MTkxIC00MzEgMTkyMjguNSAtNDE4LjBRMTkyNjYgLTQwNSAxOTMxMS4wIC0zOTQuNVExOTM1NiAtMzg0IDE5NDAxLjUgLTM3MS4wUTE5NDQ3IC0zNTggMTk0ODQuNSAtMzM3LjBRMTk1MjIgLTMxNiAxOTU0NS4wIC0yODEuMFExOTU2OCAtMjQ2IDE5NTY4IC0xOTFRMTk1NjggLTEzOCAxOTUzOS4wIC05Mi41UTE5NTEwIC00NyAxOTQ0OS41IC0xOS41UTE5Mzg5IDggMTkyOTcgOFoiLz48L3N2Zz4=" alt="Recorp Resultados Corporativos"></div>
   </footer>
+  <div class="tv-shift" id="tv-shift" hidden></div>
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -907,6 +1109,31 @@ const formatTime  = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 /** "07:30–09:00", "07:30" ou "" */
 const fmtRange    = (start, end) => start ? (end ? `${start}–${end}` : start) : '';
 /** Valida o fim em relação ao início: devolve a mensagem de erro ou '' */
+/* ---------- Expediente, extensões e atrasos ---------- */
+const SHIFT_DEFAULT = { start: '07:00', lunch: '11:30', back: '13:30', end: '17:48', weekdays: [1, 2, 3, 4, 5], showMin: 3 };
+/** Expediente normal (Configurações) */
+const shift = () => ({ ...SHIFT_DEFAULT, ...((typeof Store !== 'undefined' && Store.state.settings.shift) || {}) });
+/** Expediente do dia, já com a extensão para todos (se houver). */
+function shiftFor(date) {
+  const s = shift(), all = Store.extensionsOn(date).filter(x => x.all);
+  if (!all.length) return { ...s, extended: false };
+  const end = all.map(x => x.end).sort().pop(), starts = all.map(x => x.start).filter(Boolean).sort();
+  return { ...s, end, start: starts[0] && starts[0] < s.start ? starts[0] : s.start, extended: true, normalEnd: s.end, normalStart: s.start };
+}
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
+/** Minutos do intervalo [a, b] (minutos do dia) que caem no almoço */
+function lunchOverlap(a, b) { const s = shift(), l = toMin(s.lunch), r = toMin(s.back); return Math.max(0, Math.min(b, r) - Math.max(a, l)); }
+/** Atrasada = não concluída e já passou do fim previsto (sem fim: 1 hora depois do início). */
+function isLate(a, date, now = nowMin()) {
+  if (!a || a.status === 'concluida' || !a.time) return false;
+  const t = todayISO();
+  if (date > t) return false;
+  const limit = a.end ? toMin(a.end) : toMin(a.time) + 60;
+  return date < t || now > limit;
+}
+/** 95 → "1h 35min" · 40 → "40 min" */
+const fmtDur = m => { if (m == null || isNaN(m)) return '—'; m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? `${h}h${r ? ' ' + pad(r) + 'min' : ''}` : `${r} min`; };
+const hhmmOf = iso => iso ? formatTime(new Date(iso)) : '';
 const endError    = (start, end) => !end ? '' : !start ? 'Informe também o início.' : end <= start ? 'O fim deve ser depois do início.' : '';
 const initials    = name => name.trim().split(/\s+/).filter(Boolean).map(p => p[0]).filter((_, i, a) => i === 0 || i === a.length - 1).join('').toUpperCase();
 const norm        = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -925,6 +1152,12 @@ const ICONS = {
   wrench:   '<path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.6-.6-.6-2.6z"/>',
   broom:    '<path d="M19 3l-7.5 7.5"/><path d="M10 9.5l4.5 4.5"/><path d="M9 10.5c-3 .5-5 2.5-6 6.5l1.5 1.5 2-1.5-.5 2.5L7.5 21c4-1 6-3 6.5-6z"/>',
   check:    '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alert:    '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/>',
+  clock:    '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  sun:      '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+  meal:     '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 21V3c-2 1-3 3.5-3 7v3h3"/>',
+  play:     '<circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l5 3.5-5 3.5z"/>',
+  moon:     '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
   users:    '<circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><path d="M16 4.8a3.2 3.2 0 0 1 0 6.4M18 14.3c1.6.7 2.6 2.4 3 4.7"/>'
 };
 const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
@@ -1088,7 +1321,7 @@ const SyncUI = {
 const PRIORITY = { alta: { label: 'Alta', ord: 0 }, normal: { label: 'Normal', ord: 1 }, baixa: { label: 'Baixa', ord: 2 } };
 const STATUS   = { pendente: 'Pendente', andamento: 'Em andamento', concluida: 'Concluída' };
 
-const emptyState = () => ({ schemaVersion: 1, updatedAt: null, settings: { pinHash: null }, collaborators: [], activities: [], assignments: {}, maintenances: [], routines: [], routineDays: {}, cleanings: [], machines: [] });
+const emptyState = () => ({ schemaVersion: 1, updatedAt: null, settings: { pinHash: null }, collaborators: [], activities: [], assignments: {}, maintenances: [], routines: [], routineDays: {}, cleanings: [], machines: [], extensions: [] });
 
 const Store = {
   adapter: LocalStorageAdapter,
@@ -1107,7 +1340,8 @@ const Store = {
       routines: Array.isArray(d.routines) ? d.routines : [],
       cleanings: Array.isArray(d.cleanings) ? d.cleanings : [],
       machines: Array.isArray(d.machines) ? d.machines : [],
-      routineDays: d.routineDays && typeof d.routineDays === 'object' ? d.routineDays : {}
+      routineDays: d.routineDays && typeof d.routineDays === 'object' ? d.routineDays : {},
+      extensions: Array.isArray(d.extensions) ? d.extensions : []
     };
     this._migrateMachines();
     return this.state;
@@ -1139,6 +1373,8 @@ const Store = {
   deleteCollaborator(id) {
     this.state.collaborators = this.state.collaborators.filter(c => c.id !== id);
     this.state.routines = this.state.routines.filter(r => r.collaboratorId !== id);
+    this.state.extensions.forEach(x => { x.collaboratorIds = (x.collaboratorIds || []).filter(c => c !== id); });
+    this.state.extensions = this.state.extensions.filter(x => x.all || x.collaboratorIds.length);
     this._dropAssignments(a => a.collaboratorId === id);
     this.commit();
   },
@@ -1206,8 +1442,16 @@ const Store = {
     const a = this.rawDay(date).find(x => x.id === id);
     if (!a) return;
     const now = new Date().toISOString();
-    this.rawDay(date).filter(x => x === a || (a.groupId && x.groupId === a.groupId))
-      .forEach(x => Object.assign(x, patch, { updatedAt: now }));
+    this.rawDay(date).filter(x => x === a || (a.groupId && x.groupId === a.groupId)).forEach(x => {
+      // guarda quando a tarefa começou e terminou de verdade (usado no relatório de produtividade)
+      const stamp = {};
+      if (patch.status && patch.status !== x.status) {
+        if (patch.status === 'andamento') { stamp.startedAt = x.startedAt || now; stamp.doneAt = null; }
+        if (patch.status === 'concluida') { stamp.doneAt = now; stamp.startedAt = x.startedAt || null; }
+        if (patch.status === 'pendente') { stamp.startedAt = null; stamp.doneAt = null; }
+      }
+      Object.assign(x, patch, stamp, { updatedAt: now });
+    });
     this.commit();
   },
   removeAssignment(date, id) {
@@ -1439,6 +1683,22 @@ const Store = {
   reopenMaintenance(id) { const m = this.getMaintenance(id); if (m) { m.releasedOn = null; this.commit(); } },
   deleteMaintenance(id) { this.state.maintenances = this.state.maintenances.filter(m => m.id !== id); this.commit(); },
 
+  /* ---- Extensão de expediente ----
+     { id, date, start:"HH:MM"|"" (antecipado), end:"HH:MM", all:boolean, collaboratorIds:[], reason } */
+  extensions() { return [...this.state.extensions].sort((a, b) => b.date.localeCompare(a.date) || a.end.localeCompare(b.end)); },
+  getExtension(id) { return this.state.extensions.find(x => x.id === id); },
+  extensionsOn(date) { return this.state.extensions.filter(x => x.date === date); },
+  extensionPeople(x) { return x.all ? this.state.collaborators : x.collaboratorIds.map(id => this.getCollaborator(id)).filter(Boolean); },
+  /** Minutos extras por pessoa: além do fim normal + antes do início normal */
+  extensionExtra(x) { const s = shift(); return Math.max(0, toMin(x.end) - toMin(s.end)) + (x.start ? Math.max(0, toMin(s.start) - toMin(x.start)) : 0); },
+  saveExtension({ id, date, start, end, all, collaboratorIds, reason }) {
+    const data = { date, start: start || '', end, all: !!all, collaboratorIds: all ? [] : collaboratorIds, reason: reason || '' };
+    if (id) Object.assign(this.getExtension(id), data);
+    else this.state.extensions.push({ id: id = uid(), ...data, createdAt: new Date().toISOString() });
+    this.commit(); return id;
+  },
+  deleteExtension(id) { this.state.extensions = this.state.extensions.filter(x => x.id !== id); this.commit(); },
+
   countAssignments(pred) { return Object.values(this.state.assignments).flat().filter(pred).length; },
   _dropAssignments(pred, fromDate = '') {
     for (const [date, list] of Object.entries(this.state.assignments)) {
@@ -1566,6 +1826,61 @@ function flash(selector) {
 $$('[data-icon]').forEach(el => el.insertAdjacentHTML('afterbegin', icon(el.dataset.icon)));
 
 /* =========================================================================
+   RELATÓRIO DE PRODUTIVIDADE — cálculo
+   ========================================================================= */
+const Report = {
+  /** Data e hora de um "HH:MM" naquele dia */
+  at(date, hhmm) { const d = parseISO(date); d.setMinutes(toMin(hhmm)); return d; },
+  range(preset) {
+    const t = todayISO();
+    if (preset === 'hoje') return [t, t];
+    if (preset === 'ontem') return [addDays(t, -1), addDays(t, -1)];
+    if (preset === '30') return [addDays(t, -29), t];
+    if (preset === 'mes') return [t.slice(0, 8) + '01', t];
+    return [addDays(t, -6), t];
+  },
+  /** Medidas de uma tarefa: tempo previsto, tempo real, no prazo, atrasada */
+  item(a, date) {
+    const planned = a.time && a.end ? Math.max(0, toMin(a.end) - toMin(a.time) - lunchOverlap(toMin(a.time), toMin(a.end))) : null;
+    const done = a.status === 'concluida';
+    const startTs = a.startedAt ? new Date(a.startedAt) : a.time ? this.at(date, a.time) : null;
+    const doneTs = a.doneAt ? new Date(a.doneAt) : null;
+    let real = null, measured = false;
+    if (done && doneTs && startTs && doneTs > startTs && doneTs - startTs < 16 * 3600e3) {
+      const sm = startTs.getHours() * 60 + startTs.getMinutes(), mins = (doneTs - startTs) / 60000;
+      real = Math.max(1, Math.round(mins - lunchOverlap(sm, sm + mins))); measured = true;
+    } else if (done && planned != null) real = planned;
+    const endTs = a.end ? this.at(date, a.end) : null;
+    const onTime = done ? (endTs && doneTs ? doneTs <= new Date(endTs.getTime() + 5 * 60e3) : null) : null;
+    const late = done ? onTime === false : isLate(a, date);
+    return { planned, real, measured, done, onTime, late };
+  },
+  /** Todas as tarefas do período (sem limpezas gerais e sem dias futuros) */
+  collect(from, to, colabId) {
+    const t = todayISO(), out = [];
+    for (const date of Object.keys(Store.state.assignments).sort()) {
+      if (date < from || date > to || date > t) continue;
+      for (const a of Store.day(date)) {
+        if (a.cleaningId || (colabId && a.collaboratorId !== colabId)) continue;
+        const machine = a.activity.machineId ? Store.getMachine(a.activity.machineId) : null;
+        out.push({ date, a, c: a.collaborator, act: a.activity, machine, m: this.item(a, date) });
+      }
+    }
+    return out;
+  },
+  /** Horas extras (extensão de expediente) por colaborador no período */
+  extras(from, to, colabId) {
+    const t = todayISO(), map = new Map();
+    for (const x of Store.state.extensions) {
+      if (x.date < from || x.date > to || x.date > t) continue;
+      const extra = Store.extensionExtra(x);
+      for (const c of Store.extensionPeople(x)) if (!colabId || c.id === colabId) map.set(c.id, (map.get(c.id) || 0) + extra);
+    }
+    return map;
+  }
+};
+
+/* =========================================================================
    6. ÁREA DE EDIÇÃO
    ========================================================================= */
 const Editor = {
@@ -1579,13 +1894,15 @@ const Editor = {
     if (!this.started) { this.bind(); this.started = true; }
     Store.load();
     this.render();
+    this.fillShift();
   },
 
   render() {
     Store.ensureRoutine(this.refDate);
     this.renderRoutine();
     this.renderDate(); this.renderAssignForm(); this.renderAssignList();
-    this.renderCollabs(); this.renderActivities(); this.renderMaint(); this.renderCleaning(); this.renderMachines(); this.renderCounts();
+    this.renderCollabs(); this.renderActivities(); this.renderMaint(); this.renderCleaning(); this.renderMachines(); this.renderExtensions(); this.renderCounts();
+    if (this.tab === 'relatorios') this.renderReport();
   },
 
   renderCounts() {
@@ -1596,6 +1913,7 @@ const Editor = {
     $('#cnt-rt').textContent = new Set(Store.routines().map(r => r.collaboratorId)).size;
     $('#cnt-cl').textContent = Store.state.cleanings.length;
     $('#cnt-mt').textContent = Store.activeMaintenances(todayISO()).length;
+    $('#cnt-ex').textContent = Store.state.extensions.filter(x => x.date >= todayISO()).length;
   },
 
   setTab(tab) {
@@ -1605,6 +1923,9 @@ const Editor = {
     if (tab === 'maquinas') this.renderMachines();
     if (tab === 'rotina') this.renderRoutine();          // pega colaboradores/atividades cadastrados nas outras abas
     if (tab === 'atribuicoes') { this.renderAssignForm(); this.renderAssignList(); this.renderDate(); }
+    if (tab === 'extensao') this.renderExtensions();
+    if (tab === 'relatorios') this.renderReport();
+    if (tab === 'config') this.fillShift();
   },
 
   setDate(iso) {
@@ -1683,9 +2004,10 @@ const Editor = {
           <div class="meta">${done}/${items.length} concluídas</div>
         </div>
         ${items.map(a => `
-        <div class="as-item ${a.status === 'concluida' ? 'done' : ''}" id="as-${a.id}" data-id="${a.id}">
+        <div class="as-item ${a.status === 'concluida' ? 'done' : ''} ${isLate(a, this.refDate) ? 'late' : ''}" id="as-${a.id}" data-id="${a.id}">
           <div class="times"><input class="input" type="time" value="${esc(a.time)}" data-act="time" aria-label="Início"><span>–</span><input class="input" type="time" value="${esc(a.end || '')}" data-act="end" aria-label="Fim"></div>
-          <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}
+          <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}${isLate(a, this.refDate) ? `<span class="tag-late">${icon('alert')}Atrasada</span>` : ''}
+            ${a.startedAt || a.doneAt ? `<div class="real">${a.startedAt ? 'Iniciada às ' + hhmmOf(a.startedAt) : ''}${a.startedAt && a.doneAt ? ' · ' : ''}${a.doneAt ? 'concluída às ' + hhmmOf(a.doneAt) : ''}</div>` : ''}
             ${(() => { const t = Store.teammates(this.refDate, a); return t.length ? `<div class="team">${icon('users')}com ${esc(t.map(c => c.name).join(', '))}</div>` : ''; })()}
             <button type="button" class="link-btn" data-act="join">+ incluir colaborador</button></div>
           <select class="input status-select s-${a.status}" data-act="status" aria-label="Status">
@@ -1914,6 +2236,140 @@ const Editor = {
     $('#maint-form-title').textContent = 'Máquina em manutenção';
     $('#maint-submit').textContent = 'Registrar';
     $('#maint-cancel').hidden = true;
+  },
+
+  /* ---------- Extensão de expediente ---------- */
+  exSelected: new Set(),
+  editingExt: null,
+  renderExtensions() {
+    const s = shift(), t = todayISO();
+    $('#ext-normal').textContent = `Expediente normal: ${s.start} às ${s.end} (almoço ${s.lunch}–${s.back}). Registre aqui os dias em que ele vai além disso.`;
+    if (!$('#ex-date').value) $('#ex-date').value = t;
+    const everyone = $('#ex-everyone').checked;
+    $('#ex-colabs').hidden = everyone; $('#ex-all').hidden = $('#ex-none').hidden = everyone;
+    this.exSelected = new Set([...this.exSelected].filter(id => Store.getCollaborator(id)));
+    $('#ex-colabs').innerHTML = Store.collaborators().map(c => `<label><input type="checkbox" value="${c.id}" ${this.exSelected.has(c.id) ? 'checked' : ''}>${esc(c.name)}</label>`).join('') || '<div class="none">Cadastre colaboradores primeiro.</div>';
+    $('#ex-count').textContent = everyone ? `Vale para todos os ${Store.state.collaborators.length} colaboradores.` : plural(this.exSelected.size, 'colaborador selecionado', 'colaboradores selecionados');
+    const list = Store.extensions(), box = $('#ex-table');
+    if (!list.length) { box.innerHTML = `<div class="empty"><strong>Nenhuma extensão registrada.</strong>Quando o expediente for além de ${s.end}, registre ao lado: a TV avisa e as horas extras entram no relatório.</div>`; return; }
+    box.innerHTML = `<table><thead><tr><th>Data</th><th>Horário</th><th>Quem fica</th><th>Motivo</th><th class="num">Extra por pessoa</th><th></th></tr></thead><tbody>
+      ${list.map(x => {
+        const people = Store.extensionPeople(x);
+        const who = x.all ? `Todos (${people.length})` : people.slice(0, 3).map(c => esc(c.name)).join(', ') + (people.length > 3 ? ` e mais ${people.length - 3}` : '');
+        return `<tr id="ex-${x.id}" class="${x.date < t ? 'released' : ''} ${this.editingExt === x.id ? 'editing' : ''}">
+          <td style="white-space:nowrap"><b>${formatShort(x.date)}</b>${x.date === t ? ' <span class="badge today" style="height:20px;font-size:10px">Hoje</span>' : ''}</td>
+          <td style="white-space:nowrap">${x.start || s.start} – <b>${x.end}</b></td>
+          <td class="ex-who">${who}</td>
+          <td class="${x.reason ? '' : 'muted'}">${esc(x.reason || '—')}</td>
+          <td class="num ex-extra">${fmtDur(Store.extensionExtra(x))}</td>
+          <td class="actions">
+            <button class="btn btn-ghost btn-sm icon-btn" data-exedit="${x.id}" title="Editar" aria-label="Editar">${icon('edit')}</button>
+            <button class="btn btn-ghost-danger btn-sm icon-btn" data-exdel="${x.id}" title="Excluir" aria-label="Excluir">${icon('trash')}</button>
+          </td></tr>`; }).join('')}
+      </tbody></table>`;
+  },
+  resetExtForm() {
+    this.editingExt = null; this.exSelected.clear();
+    $('#ex-date').value = todayISO(); $('#ex-start').value = ''; $('#ex-end').value = ''; $('#ex-reason').value = ''; $('#ex-everyone').checked = true;
+    ['f-ex-date', 'f-ex-start', 'f-ex-end', 'f-ex-who'].forEach(f => setFieldError(f));
+    $('#ext-form-title').textContent = 'Estender o expediente'; $('#ext-submit').textContent = 'Registrar extensão'; $('#ext-cancel').hidden = true;
+  },
+
+  /* ---------- Expediente (Configurações) ---------- */
+  shDaysInit: false,
+  fillShift() {
+    const s = shift();
+    if (!this.shDaysInit) {
+      $('#sh-days').innerHTML = [1, 2, 3, 4, 5, 6, 0].map(d => `<label class="wd"><input type="checkbox" value="${d}"><span>${WEEKDAYS[d]}</span></label>`).join('');
+      this.shDaysInit = true;
+    }
+    $('#sh-start').value = s.start; $('#sh-lunch').value = s.lunch; $('#sh-back').value = s.back; $('#sh-end').value = s.end;
+    $$('#sh-days input').forEach(i => i.checked = s.weekdays.includes(+i.value));
+    $('#sh-show').value = String(s.showMin);
+    ['f-sh-start', 'f-sh-lunch', 'f-sh-back', 'f-sh-end', 'f-sh-days'].forEach(f => setFieldError(f));
+  },
+
+  /* ---------- Relatório de produtividade ---------- */
+  rpInit: false,
+  renderReport() {
+    if (!this.rpInit) { const [f, t] = Report.range('7'); $('#rp-from').value = f; $('#rp-to').value = t; this.rpInit = true; }
+    const keep = $('#rp-colab').value;
+    $('#rp-colab').innerHTML = '<option value="">Todos</option>' + Store.collaborators().map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    if (Store.getCollaborator(keep)) $('#rp-colab').value = keep;
+    let from = $('#rp-from').value, to = $('#rp-to').value;
+    if (from > to) [from, to] = [to, from];
+    const colabId = $('#rp-colab').value;
+    const rows = Report.collect(from, to, colabId), extras = Report.extras(from, to, colabId);
+    this.rpRows = rows;
+    const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
+    const done = rows.filter(r => r.m.done), measured = done.filter(r => r.m.measured && r.m.planned != null);
+    const onTime = done.filter(r => r.m.onTime !== false).length, late = rows.filter(r => r.m.late).length;
+    const realMin = sum(done, r => r.m.real), extraMin = [...extras.values()].reduce((a, b) => a + b, 0);
+    const eff = sum(measured, r => r.m.real) ? Math.round(sum(measured, r => r.m.planned) / sum(measured, r => r.m.real) * 100) : null;
+    const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+    const kpi = (label, value, sub = '', bad = false) => `<div class="kpi ${bad ? 'bad' : ''}"><small>${label}</small><b>${value}</b><span>${sub}</span></div>`;
+    $('#rp-kpis').innerHTML = [
+      kpi('Tarefas', rows.length, `${formatShort(from)} a ${formatShort(to)}`),
+      kpi('Concluídas', done.length, `${pct(done.length, rows.length)}% das tarefas`),
+      kpi('No prazo', `${pct(onTime, done.length)}%`, `${onTime} de ${done.length} concluídas`),
+      kpi('Atrasadas', late, late ? 'passaram do horário de fim' : 'nenhuma no período', late > 0),
+      kpi('Tempo trabalhado', fmtDur(realMin), 'nas tarefas concluídas'),
+      kpi('Eficiência', eff == null ? '—' : eff + '%', eff == null ? 'sem tempos medidos ainda' : 'previsto ÷ real (100% = no tempo)'),
+      kpi('Horas extras', fmtDur(extraMin), 'extensões de expediente')
+    ].join('');
+    if (!rows.length && !extraMin) {
+      const empty = `<div class="empty"><strong>Sem tarefas neste período.</strong>Escolha outro período ou colaborador.</div>`;
+      $('#rp-colabs').innerHTML = $('#rp-acts').innerHTML = $('#rp-machines').innerHTML = empty; return;
+    }
+    const meter = v => `<div class="meter"><i><em style="width:${v}%"></em></i><span>${v}%</span></div>`;
+    // Por colaborador
+    const byC = new Map();
+    for (const r of rows) { if (!byC.has(r.c.id)) byC.set(r.c.id, { c: r.c, rows: [] }); byC.get(r.c.id).rows.push(r); }
+    for (const id of extras.keys()) if (!byC.has(id)) { const c = Store.getCollaborator(id); if (c) byC.set(id, { c, rows: [] }); }
+    const cl = [...byC.values()].map(g => {
+      const d = g.rows.filter(r => r.m.done), ms = d.filter(r => r.m.measured && r.m.planned != null);
+      const e = sum(ms, r => r.m.real) ? Math.round(sum(ms, r => r.m.planned) / sum(ms, r => r.m.real) * 100) : null;
+      return { c: g.c, n: g.rows.length, done: d.length, onTime: d.filter(r => r.m.onTime !== false).length, late: g.rows.filter(r => r.m.late).length,
+        real: sum(d, r => r.m.real), planned: sum(d, r => r.m.planned), est: d.some(r => !r.m.measured), eff: e, extra: extras.get(g.c.id) || 0 };
+    }).sort((a, b) => b.done - a.done || a.c.name.localeCompare(b.c.name, 'pt-BR'));
+    $('#rp-colabs').innerHTML = `<table><thead><tr><th>Colaborador</th><th class="num">Tarefas</th><th>Concluídas</th><th class="num">No prazo</th><th class="num">Atrasadas</th><th class="num">Tempo trabalhado</th><th class="num">Previsto</th><th class="num">Eficiência</th><th class="num">Horas extras</th></tr></thead><tbody>
+      ${cl.map(x => `<tr><td><b>${esc(x.c.name)}</b></td><td class="num">${x.n}</td><td>${meter(pct(x.done, x.n))}</td><td class="num">${x.done ? pct(x.onTime, x.done) + '%' : '—'}</td>
+        <td class="num ${x.late ? 'late-n' : ''}">${x.late}</td><td class="num">${fmtDur(x.real)}${x.est ? '<span class="est">*</span>' : ''}</td><td class="num">${fmtDur(x.planned)}</td>
+        <td class="num">${x.eff == null ? '—' : x.eff + '%'}</td><td class="num">${x.extra ? fmtDur(x.extra) : '—'}</td></tr>`).join('')}
+      </tbody></table>`;
+    // Por atividade / produto
+    const group = (pred, key) => { const m = new Map(); for (const r of rows.filter(pred)) { const k = key(r); if (!m.has(k)) m.set(k, []); m.get(k).push(r); } return m; };
+    const acts = [...group(r => !r.machine, r => r.act.id).values()].map(list => {
+      const d = list.filter(r => r.m.done && r.m.real != null), dp = d.filter(r => r.m.planned != null);
+      const avgR = d.length ? sum(d, r => r.m.real) / d.length : null, avgP = dp.length ? sum(dp, r => r.m.planned) / dp.length : null;
+      return { name: list[0].act.description, n: list.length, done: d.length, avgR, avgP, total: sum(d, r => r.m.real), est: d.some(r => !r.m.measured) };
+    }).sort((a, b) => b.total - a.total);
+    const diff = (r, p) => r == null || p == null ? '—' : Math.round(r - p) === 0 ? 'no tempo' : `<span class="${r > p ? 'diff-up' : 'diff-down'}">${r > p ? '+' : '−'}${fmtDur(Math.abs(r - p))}</span>`;
+    $('#rp-acts').innerHTML = !acts.length ? '<div class="empty">Nenhuma atividade avulsa no período.</div>' :
+      `<table><thead><tr><th>Atividade</th><th class="num">Concluídas</th><th class="num">Tempo médio</th><th class="num">Previsto</th><th class="num">Diferença</th><th class="num">Total</th></tr></thead><tbody>
+      ${acts.map(x => `<tr><td><b>${esc(x.name)}</b></td><td class="num">${x.done}/${x.n}</td><td class="num">${fmtDur(x.avgR)}${x.est ? '<span class="est">*</span>' : ''}</td><td class="num">${fmtDur(x.avgP)}</td><td class="num">${diff(x.avgR, x.avgP)}</td><td class="num">${fmtDur(x.total)}</td></tr>`).join('')}
+      </tbody></table>`;
+    // Por máquina
+    const mqs = [...group(r => r.machine, r => r.machine.id).values()].map(list => {
+      const d = list.filter(r => r.m.done && r.m.real != null);
+      return { name: list[0].machine.name, n: list.length, done: d.length, total: sum(d, r => r.m.real), est: d.some(r => !r.m.measured), ops: [...new Set(list.map(r => r.c.name.split(' ')[0]))] };
+    }).sort((a, b) => b.total - a.total);
+    $('#rp-machines').innerHTML = !mqs.length ? '<div class="empty">Nenhuma máquina usada no período.</div>' :
+      `<table><thead><tr><th>Máquina</th><th class="num">Tarefas</th><th class="num">Horas de uso</th><th>Operadores</th></tr></thead><tbody>
+      ${mqs.map(x => `<tr><td><b>${esc(x.name)}</b></td><td class="num">${x.done}/${x.n}</td><td class="num">${fmtDur(x.total)}${x.est ? '<span class="est">*</span>' : ''}</td><td class="muted">${esc(x.ops.slice(0, 4).join(', '))}${x.ops.length > 4 ? ` +${x.ops.length - 4}` : ''}</td></tr>`).join('')}
+      </tbody></table>`;
+  },
+  exportReport() {
+    const rows = this.rpRows || [];
+    if (!rows.length) return toast('Não há tarefas no período para exportar.', 'info');
+    const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const head = ['Data', 'Colaborador', 'Atividade', 'Máquina', 'Início previsto', 'Fim previsto', 'Iniciada às', 'Concluída às', 'Status', 'Tempo previsto (min)', 'Tempo real (min)', 'Tempo real estimado', 'No prazo', 'Atrasada'];
+    const lines = rows.map(r => [formatShort(r.date), r.c.name, r.machine ? '' : r.act.description, r.machine ? r.machine.name : '', r.a.time, r.a.end || '', hhmmOf(r.a.startedAt), hhmmOf(r.a.doneAt),
+      STATUS[r.a.status], r.m.planned ?? '', r.m.real ?? '', r.m.done && !r.m.measured ? 'sim' : '', r.m.done ? (r.m.onTime === false ? 'não' : 'sim') : '', r.m.late ? 'sim' : ''].map(q).join(';'));
+    const blob = new Blob(['﻿' + [head.map(q).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `produtividade-${$('#rp-from').value}-a-${$('#rp-to').value}.csv` });
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('Planilha exportada (abre no Excel).');
   },
 
   resetActivityForm() {
@@ -2381,6 +2837,72 @@ const Editor = {
     });
 
     // Configurações
+    // Extensão de expediente
+    $('#ex-everyone').addEventListener('change', () => { setFieldError('f-ex-who'); this.renderExtensions(); });
+    $('#ex-colabs').addEventListener('change', e => {
+      if (e.target.type !== 'checkbox') return;
+      e.target.checked ? this.exSelected.add(e.target.value) : this.exSelected.delete(e.target.value);
+      setFieldError('f-ex-who'); this.renderExtensions();
+    });
+    $('#ex-all').addEventListener('click', () => { Store.collaborators().forEach(c => this.exSelected.add(c.id)); this.renderExtensions(); });
+    $('#ex-none').addEventListener('click', () => { this.exSelected.clear(); this.renderExtensions(); });
+    $('#form-ext').addEventListener('submit', e => {
+      e.preventDefault();
+      const s = shift(), date = $('#ex-date').value, start = $('#ex-start').value, end = $('#ex-end').value, all = $('#ex-everyone').checked;
+      const ok1 = setFieldError('f-ex-date', date ? '' : 'Informe a data.');
+      const ok2 = setFieldError('f-ex-end', !end ? 'Informe o novo horário de fim.' : end <= s.end && !(start && start < s.start) ? `Deve ser depois do fim normal (${s.end}).` : end <= (start || s.start) ? 'O fim deve ser depois do início.' : '');
+      const ok3 = setFieldError('f-ex-start', start && start >= s.start ? `Para antecipar, use um horário antes de ${s.start}.` : '');
+      const ok4 = setFieldError('f-ex-who', all || this.exSelected.size ? '' : 'Marque quem fica, ou escolha todos.');
+      if (!ok1 || !ok2 || !ok3 || !ok4) return;
+      const editing = !!this.editingExt;
+      const id = Store.saveExtension({ id: this.editingExt, date, start, end, all, collaboratorIds: [...this.exSelected], reason: cleanText($('#ex-reason').value) });
+      this.resetExtForm(); this.renderExtensions(); this.renderCounts(); flash('#ex-' + id);
+      toast(editing ? 'Extensão atualizada.' : `Expediente de ${formatShort(date)} estendido até ${end}.` + (date === todayISO() ? ' A TV já mostra o aviso.' : ''));
+    });
+    $('#ext-cancel').addEventListener('click', () => { this.resetExtForm(); this.renderExtensions(); });
+    $('#ex-table').addEventListener('click', async e => {
+      const ed = e.target.closest('[data-exedit]'), del = e.target.closest('[data-exdel]');
+      if (ed) {
+        const x = Store.getExtension(ed.dataset.exedit);
+        this.editingExt = x.id; this.exSelected = new Set(x.collaboratorIds);
+        $('#ex-date').value = x.date; $('#ex-start').value = x.start || ''; $('#ex-end').value = x.end; $('#ex-reason').value = x.reason || ''; $('#ex-everyone').checked = x.all;
+        $('#ext-form-title').textContent = 'Editar extensão'; $('#ext-submit').textContent = 'Salvar alterações'; $('#ext-cancel').hidden = false;
+        this.renderExtensions(); $('#form-ext').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      } else if (del) {
+        const x = Store.getExtension(del.dataset.exdel);
+        if (!await confirmDialog({ title: 'Excluir extensão?', message: `Excluir a extensão de <b>${formatShort(x.date)}</b> (até ${x.end})?` })) return;
+        if (this.editingExt === x.id) this.resetExtForm();
+        Store.deleteExtension(x.id); this.renderExtensions(); this.renderCounts(); toast('Extensão excluída.');
+      }
+    });
+
+    // Relatório
+    $('#rp-preset').addEventListener('change', e => {
+      if (e.target.value !== 'custom') { const [f, t] = Report.range(e.target.value); $('#rp-from').value = f; $('#rp-to').value = t; }
+      this.renderReport();
+    });
+    ['#rp-from', '#rp-to'].forEach(sel => $(sel).addEventListener('change', () => { $('#rp-preset').value = 'custom'; this.renderReport(); }));
+    $('#rp-colab').addEventListener('change', () => this.renderReport());
+    $('#rp-csv').addEventListener('click', () => this.exportReport());
+
+    // Expediente (Configurações)
+    $('#form-shift').addEventListener('submit', e => {
+      e.preventDefault();
+      const v = { start: $('#sh-start').value, lunch: $('#sh-lunch').value, back: $('#sh-back').value, end: $('#sh-end').value };
+      const weekdays = $$('#sh-days input:checked').map(i => +i.value);
+      const ok = [
+        setFieldError('f-sh-start', v.start ? '' : 'Informe o início.'),
+        setFieldError('f-sh-lunch', !v.lunch ? 'Informe o almoço.' : v.lunch <= v.start ? 'Deve ser depois do início.' : ''),
+        setFieldError('f-sh-back', !v.back ? 'Informe a volta.' : v.back <= v.lunch ? 'Deve ser depois do almoço.' : ''),
+        setFieldError('f-sh-end', !v.end ? 'Informe o fim.' : v.end <= v.back ? 'Deve ser depois da volta do almoço.' : ''),
+        setFieldError('f-sh-days', weekdays.length ? '' : 'Marque ao menos um dia.')
+      ].every(Boolean);
+      if (!ok) return;
+      Store.state.settings.shift = { ...v, weekdays, showMin: +$('#sh-show').value };
+      Store.commit(); this.renderExtensions(); toast('Expediente salvo. A TV já usa os novos horários.');
+    });
+    $$('[data-preview]').forEach(b => b.addEventListener('click', () => window.open(location.href.split('#')[0] + '#tv/' + b.dataset.preview, '_blank')));
+
     $('#btn-logout').addEventListener('click', async () => {
       if (!await confirmDialog({ title: 'Sair desta conta?', message: 'Este computador vai precisar de e-mail e senha para abrir o painel de novo.', confirmText: 'Sair', danger: false })) return;
       try { await Account.auth.signOut(); } finally { location.reload(); }
@@ -2402,6 +2924,10 @@ const TV = {
   start() {
     this.stop();
     Store.load();
+    // "#tv/almoco" (botão "Ver como fica na TV"): mostra a tela de expediente por 20 segundos
+    const pv = location.hash.match(/^#\/?tv\/(inicio|almoco|volta|fim)/i);
+    this.preview = pv ? { key: pv[1].toLowerCase(), until: Date.now() + 20000 } : null;
+    this.shiftKey = null;
     this.render(true);
     this.tickClock();
     this.timers.push(setInterval(() => this.tickClock(), 1000));
@@ -2436,9 +2962,81 @@ const TV = {
     el.innerHTML = `<div class="tv-clean-title">${icon('broom')}${st.phase === 'now' ? 'Agora' : 'Hoje'}</div>
       <b>${esc(st.c.description)}</b><span>${st.c.time} – ${st.end} · todos os colaboradores</span>`;
   },
+  /* ---------- Expediente: início, almoço, volta e fim em tela cheia ---------- */
+  shiftEvents(date) {
+    const s = shiftFor(date), partial = Store.extensionsOn(date).filter(x => !x.all);
+    const names = list => { const n = [...new Set(list.flatMap(x => Store.extensionPeople(x)).map(c => c.name.split(' ')[0]))]; return n.length > 6 ? n.slice(0, 6).join(', ') + ` e mais ${n.length - 6}` : n.join(', '); };
+    const tomorrowWorks = s.weekdays.includes(parseISO(addDays(date, 1)).getDay());
+    const bye = tomorrowWorks ? `Até amanhã! Início às ${shift().start}` : 'Bom fim de semana!';
+    const partialEnd = partial.map(x => x.end).sort().pop();
+    const list = [
+      { key: 'inicio', at: s.start, icon: 'sun', title: 'Início do expediente', sub: 'Bom dia! Confira suas atividades de hoje.', next: `Almoço às ${s.lunch}` },
+      { key: 'almoco', at: s.lunch, icon: 'meal', title: 'Horário de almoço', sub: 'Bom almoço e bom descanso!', next: `Retorno às ${s.back}` },
+      { key: 'volta', at: s.back, icon: 'play', title: 'Volta do almoço', sub: 'Bom trabalho na parte da tarde!', next: `Fim do expediente às ${s.end}${s.extended ? ' (estendido)' : ''}` },
+      { key: 'fim', at: s.end, icon: 'moon', title: s.extended ? 'Fim do expediente estendido' : 'Fim do expediente', sub: 'Obrigado pelo dia de trabalho!',
+        next: partial.length && partialEnd > s.end ? `Continuam até ${partialEnd}: ${names(partial)}` : bye }
+    ];
+    for (const x of partial) if (x.end > s.end) list.push({ key: 'fimext', at: x.end, icon: 'moon', title: 'Fim do expediente estendido', sub: `Obrigado, ${names([x])}!`, next: bye });
+    return list;
+  },
+  shiftEvent() {
+    const today = todayISO(), list = this.shiftEvents(today);
+    if (this.preview && Date.now() < this.preview.until) {
+      const ev = list.find(e => e.key === this.preview.key);
+      return ev ? { ev, left: (this.preview.until - Date.now()) / 60000, total: 20 / 60 } : null;
+    }
+    const s = shift(), n = nowMin();
+    if (!s.weekdays.includes(new Date().getDay()) && !Store.extensionsOn(today).length) return null;
+    for (const ev of list) { const m = toMin(ev.at); if (n >= m && n < m + s.showMin) return { ev, left: m + s.showMin - n, total: s.showMin }; }
+    return null;
+  },
+  renderShift() {
+    const st = this.shiftEvent(), el = $('#tv-shift'), key = st ? st.ev.key + st.ev.at : '';
+    if (key !== this.shiftKey) {
+      this.shiftKey = key; clearTimeout(this.shiftHide);
+      if (st) {
+        el.dataset.kind = st.ev.key; el.classList.remove('leaving');
+        el.innerHTML = `<img class="tv-shift-logo" src="${$('.tv-logo').src}" alt=""><div class="tv-shift-clock"></div>
+          <div class="tv-shift-inner"><div class="tv-shift-icon">${icon(st.ev.icon)}</div><div class="tv-shift-time">${st.ev.at}</div>
+          <h1>${esc(st.ev.title)}</h1><p>${esc(st.ev.sub)}</p><div class="tv-shift-next">${esc(st.ev.next)}</div></div>
+          <div class="tv-shift-bar"><i></i></div>`;
+        el.hidden = false;
+      } else if (!el.hidden) {
+        el.classList.add('leaving');
+        this.shiftHide = setTimeout(() => { el.hidden = true; el.classList.remove('leaving'); el.innerHTML = ''; }, 700);
+      }
+    }
+    if (st) {
+      el.querySelector('.tv-shift-clock').textContent = formatTime(new Date());
+      el.querySelector('.tv-shift-bar i').style.width = Math.min(100, Math.max(0, 100 * (1 - st.left / st.total))).toFixed(1) + '%';
+    }
+  },
+  /* Faixa: intervalo de almoço ou expediente estendido hoje */
+  breakState() {
+    const t = todayISO(), s = shiftFor(t), n = nowMin(), works = s.weekdays.includes(new Date().getDay()) || Store.extensionsOn(t).length;
+    if (works && n >= toMin(s.lunch) && n < toMin(s.back)) return { kind: 'almoco', title: 'Almoço', b: 'Intervalo de almoço', span: `retorno às ${s.back}` };
+    const ex = Store.extensionsOn(t).filter(x => n < toMin(x.end));
+    if (!ex.length) return null;
+    const end = ex.map(x => x.end).sort().pop();
+    const who = ex.some(x => x.all) ? 'todos os colaboradores' : [...new Set(ex.flatMap(x => Store.extensionPeople(x)).map(c => c.name.split(' ')[0]))].join(', ');
+    const why = [...new Set(ex.map(x => x.reason).filter(Boolean))].join(' · ');
+    return { kind: 'ext', title: 'Expediente estendido', b: `Hoje até ${end}`, span: who + (why ? ' · ' + why : '') };
+  },
+  renderBreak() {
+    const st = this.breakState(), el = $('#tv-break');
+    this.breakKey = st ? st.kind + st.b + st.span : '';
+    el.hidden = !st;
+    if (st) el.innerHTML = `<div class="tv-break-title">${icon(st.kind === 'almoco' ? 'meal' : 'clock')}${st.title}</div><b>${esc(st.b)}</b><span>${esc(st.span)}</span>`;
+  },
+  lateIds(today = todayISO()) { return Store.day(today).filter(a => isLate(a, today)).map(a => a.id).join(','); },
+
   tickClock() {
     const now = new Date();
     $('#tv-clock').textContent = formatTime(now);
+    this.renderShift();
+    const bs = this.breakState();
+    if ((bs ? bs.kind + bs.b + bs.span : '') !== this.breakKey) this.render(false);    // almoço / extensão começou ou terminou
+    if (this.lateIds() !== this.lateKey) this.render(false);                           // alguma tarefa passou do horário
     const st = this.cleanState();
     if ((st ? st.c.id + st.phase : '') !== this.cleanKey) this.render(false);   // limpeza começou/terminou: redesenha
     if ($('#tv-date').dataset.iso !== todayISO()) this.render(true); // virada do dia à meia-noite
@@ -2493,6 +3091,7 @@ const TV = {
   // Etiquetas vão no INÍCIO da descrição: assim nunca são cortadas quando o texto é longo
   tags(a) {
     const t = [];
+    if (isLate(a, todayISO())) t.push('<span class="tv-tag atrasada">Atrasada</span>');
     if (a.activity.priority === 'alta' && a.status !== 'concluida') t.push('<span class="tv-tag alta">Prioridade</span>');
     if (a.status === 'andamento') t.push('<span class="tv-tag andamento">Em andamento</span>');
     return t.join('');
@@ -2500,7 +3099,8 @@ const TV = {
 
   cardHTML({ c, items }, i, today) {
     const done = items.filter(a => a.status === 'concluida').length;
-    return `<article class="tv-card" style="animation-delay:${i * 40}ms">
+    const hasLate = items.some(a => isLate(a, today));
+    return `<article class="tv-card ${hasLate ? 'has-late' : ''}" style="animation-delay:${i * 40}ms">
       <div class="tv-card-head">
         <div class="tv-avatar">${esc(initials(c.name))}</div>
         <div class="tv-who"><div class="tv-name">${esc(c.name)}</div></div>
@@ -2508,7 +3108,7 @@ const TV = {
       </div>
       <ul class="tv-list">${items.map(a => {
         const t = Store.teammates(today, a);
-        return `<li class="tv-item p-${a.activity.priority} s-${a.status}">
+        return `<li class="tv-item p-${a.activity.priority} s-${a.status} ${isLate(a, today) ? 'late' : ''}">
           ${a.time ? `<span class="tv-time">${a.time}${a.end ? `<small>${a.end}</small>` : ''}</span>` : '<span class="tv-time none"></span>'}
           <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${t.length ? `<span class="tv-with">com ${esc(t.map(c => c.name.split(' ')[0]).join(', '))}</span>` : ''}</span>
         </li>`; }).join('')}</ul>
@@ -2556,6 +3156,12 @@ const TV = {
     const { busy: cards, idle } = this.cards();
 
     this.renderClean();
+    this.renderBreak();
+    // Alerta de atrasadas no topo
+    const lateN = all.filter(a => isLate(a, today)).length, alertEl = $('#tv-alert');
+    this.lateKey = this.lateIds(today);
+    alertEl.hidden = !lateN;
+    alertEl.innerHTML = `${icon('alert')}${plural(lateN, 'atividade atrasada', 'atividades atrasadas')}`;
     // Faixa de máquinas em manutenção (também antes de medir a grade)
     const maint = Store.activeMaintenances(today), maintEl = $('#tv-maint');
     maintEl.hidden = !maint.length;
