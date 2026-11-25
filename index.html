@@ -365,6 +365,59 @@ tr.released td{color:var(--gray-500)}
 .tv-bar i{display:block;height:100%;width:0;background:var(--olive-400)}
 @keyframes bar{from{width:0}to{width:100%}}
 .tv-offline{color:var(--danger-tv)}
+
+/* =========================================================================
+   TRANSIÇÕES — suaves e curtas; desligadas para quem pede menos movimento
+   ========================================================================= */
+:root{--ease:cubic-bezier(.22,.61,.36,1)}
+/* Troca de tela (login → painel, painel ↔ TV) e de aba */
+.view:not([hidden]){animation:viewIn .35s var(--ease)}
+.panel:not([hidden]){animation:panelIn .28s var(--ease)}
+@keyframes viewIn{from{opacity:0}}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}}
+/* Abas: cor e sublinhado deslizam */
+.tab{transition:color .2s var(--ease),border-color .25s var(--ease)}
+.tab .count{transition:background .2s,color .2s}
+/* Botões e campos */
+.btn{transition:background .18s var(--ease),border-color .18s var(--ease),color .18s var(--ease),box-shadow .18s var(--ease),transform .08s}
+.btn-primary:hover:not([disabled]){box-shadow:0 4px 12px rgba(91,89,51,.25)}
+.input,select.input,textarea.input{transition:border-color .18s var(--ease),background .18s var(--ease),box-shadow .18s var(--ease)}
+.input:focus{box-shadow:0 0 0 3px rgba(143,135,73,.18)}
+.field .err:not(:empty){animation:errIn .2s var(--ease)}
+@keyframes errIn{from{opacity:0;transform:translateY(-3px)}}
+.seg button,.link-btn,.chip button,.wd span{transition:background .18s,color .18s,border-color .18s,box-shadow .18s}
+.checklist label{transition:background .15s}
+/* Cartões e linhas */
+.card{transition:box-shadow .25s var(--ease)}
+.as-group,.mq-card{transition:box-shadow .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease)}
+.mq-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--gray-300)}
+.as-group:hover{box-shadow:var(--shadow)}
+td,.as-item,.rt-item{transition:background .18s}
+tbody tr:hover td{background:var(--olive-50)}
+.as-item.done .desc{transition:color .25s}
+.status-select{transition:border-color .2s,background .2s,color .2s}
+.chip{animation:chipIn .2s var(--ease)}
+@keyframes chipIn{from{opacity:0;transform:scale(.85)}}
+.sync{transition:color .3s}
+/* Janelas de confirmação: entram e saem */
+.modal{animation:modalIn .22s var(--ease)}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.97)}}
+.modal-backdrop.closing{animation:fadeOut .16s ease-in forwards;pointer-events:none}
+.modal-backdrop.closing .modal{animation:modalOut .16s ease-in forwards}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes modalOut{to{opacity:0;transform:translateY(6px) scale(.98)}}
+/* Login */
+.lock-card{animation:cardIn .4s var(--ease)}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}}
+/* TV: faixas de limpeza, manutenção e "sem atividades" surgem suavemente; virada de página com fade */
+.tv-clean:not([hidden]),.tv-maint:not([hidden]),.tv-idle:not([hidden]){animation:stripIn .5s var(--ease)}
+@keyframes stripIn{from{opacity:0;transform:translateY(calc(var(--u)*1))}}
+.tv-empty{animation:viewIn .6s var(--ease)}
+.tv-dots i{transition:background .4s var(--ease),transform .4s var(--ease)}
+.tv-dots i.on{transform:scale(1.25)}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
 </style>
 </head>
 <body>
@@ -1383,7 +1436,7 @@ function confirmDialog({ title, message, confirmText = 'Excluir', danger = true 
           <button class="btn btn-secondary" data-r="0">Cancelar</button>
           <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-r="1">${esc(confirmText)}</button>
         </div></div>`;
-    const close = r => { document.removeEventListener('keydown', onKey); back.remove(); resolve(r); };
+    const close = r => { document.removeEventListener('keydown', onKey); back.classList.add('closing'); setTimeout(() => back.remove(), 170); resolve(r); };
     const onKey = e => { if (e.key === 'Escape') close(false); };
     back.addEventListener('click', e => {
       if (e.target === back) return close(false);
@@ -1439,7 +1492,7 @@ function formDialog({ title, submitText = 'Salvar', fields, validate }) {
         ${fields.map(f => `<div class="field" id="mf-${f.id}"><label for="m-${f.id}">${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ''}</label>${control(f)}<small class="err"></small></div>`).join('')}
       </div><div class="actions"><button type="button" class="btn btn-secondary" data-cancel>Cancelar</button><button type="submit" class="btn btn-primary">${esc(submitText)}</button></div></form>`;
     const form = back.querySelector('form');
-    const close = r => { document.removeEventListener('keydown', onKey); back.remove(); resolve(r); };
+    const close = r => { document.removeEventListener('keydown', onKey); back.classList.add('closing'); setTimeout(() => back.remove(), 170); resolve(r); };
     const onKey = e => { if (e.key === 'Escape') close(null); };
     back.addEventListener('click', e => { if (e.target === back || e.target.closest('[data-cancel]')) close(null); });
     form.addEventListener('submit', e => {
