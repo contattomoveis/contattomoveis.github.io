@@ -3295,8 +3295,9 @@ const TV = {
     if (v.ahead) Store.ensureRoutine(v.date);   // depois do expediente: rotina do próximo dia já aparece
     this.signature = this.sig();
     const dateEl = $('#tv-date'), kicker = $('.tv-date small');
-    dateEl.textContent = formatLong(v.date); dateEl.dataset.iso = today;
-    const label = !v.ahead ? 'Atividades do dia' : v.date === addDays(today, 1) ? 'Atividades de amanhã' : 'Próximas atividades';
+    dateEl.textContent = formatLong(today); dateEl.dataset.iso = today;   // a data do topo é sempre a de hoje
+    const weekday = formatLong(v.date).split(',')[0].toLowerCase();
+    const label = !v.ahead ? 'Atividades do dia' : v.date === addDays(today, 1) ? 'Atividades de amanhã' : `Atividades de ${weekday}`;
     kicker.textContent = label; kicker.classList.toggle('ahead', v.ahead);
 
     const all = this.dayList();
