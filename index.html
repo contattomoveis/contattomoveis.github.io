@@ -3278,8 +3278,8 @@ const TV = {
 
     // Faixa "Sem atividades hoje" — precisa estar preenchida antes de medir a grade
     const idleEl = $('#tv-idle');
-    idleEl.hidden = !all.length || !idle.length;
-    idleEl.innerHTML = `Sem atividades hoje: ${idle.map(g => `<b>${esc(g.c.name)}</b>`).join(' · ')}`;
+    idleEl.hidden = true;   // faixa "Sem atividades hoje" removida da TV a pedido
+    idleEl.innerHTML = '';
 
     const grid = $('#tv-grid');
     // "Peso" de cada cartão: atividades com colega ("com Fulano") ou descrição longa ocupam mais altura
