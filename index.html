@@ -299,6 +299,7 @@ tr.released td{color:var(--gray-500)}
 .tv-logo{height:calc(var(--u)*6.8);width:auto}
 .tv-date{flex:1;text-align:center;display:flex;flex-direction:column;line-height:1.05}
 .tv-date small{font-size:calc(var(--u)*1.5);font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--olive)}
+.tv-date small.ahead{align-self:center;background:#f4d77a;color:var(--charcoal-950);padding:.25em .9em;border-radius:99px;letter-spacing:.14em;margin-bottom:.25em;animation:stripIn .5s var(--ease)}
 .tv-date strong{font-size:calc(var(--u)*3.9);font-weight:800;letter-spacing:-.01em}
 .tv-clock{font-size:calc(var(--u)*4.7);font-weight:800;color:var(--olive);font-variant-numeric:tabular-nums;min-width:calc(var(--u)*22);text-align:right}
 /* --s é calculado no JS conforme a quantidade de colaboradores; --k é a unidade dos cartões */
@@ -1028,8 +1029,9 @@ th.num{text-align:right}
               <button type="button" class="btn btn-secondary btn-sm" data-preview="almoco">Almoço</button>
               <button type="button" class="btn btn-secondary btn-sm" data-preview="volta">Volta</button>
               <button type="button" class="btn btn-secondary btn-sm" data-preview="fim">Fim</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-preview="amanha">Amanhã</button>
             </div>
-            <small class="hint">Abre a TV em outra aba, mostrando a tela por 20 segundos.</small>
+            <small class="hint">Abre a TV em outra aba, mostrando a tela por 20 segundos. "Amanhã" mostra como a TV fica depois do fim do expediente, com as atividades do próximo dia de trabalho.</small>
           </div>
         </form>
         <div class="card" id="account-card" hidden>
@@ -3022,8 +3024,8 @@ const TV = {
     this.stop();
     Store.load();
     // "#tv/almoco" (botão "Ver como fica na TV"): mostra a tela de expediente por 20 segundos
-    const pv = location.hash.match(/^#\/?tv\/(inicio|almoco|volta|fim)/i);
-    this.preview = pv ? { key: pv[1].toLowerCase(), until: Date.now() + 20000 } : null;
+    const pv = location.hash.match(/^#\/?tv\/(inicio|almoco|volta|fim|amanha)/i);
+    this.preview = pv ? { key: pv[1].toLowerCase(), until: pv[1].toLowerCase() === 'amanha' ? Infinity : Date.now() + 20000 } : null;
     this.shiftKey = null;
     this.render(true);
     this.tickClock();
@@ -3039,7 +3041,27 @@ const TV = {
     Store.load();
     if (this.sig() !== this.signature) this.render(false);
   },
-  sig() { const t = todayISO(); return (Store.state.updatedAt || '') + '|' + t + '|' + JSON.stringify(Store.rawDay(t)) + JSON.stringify(Store.rawDay(addDays(t, -1))); },
+  sig() { const t = todayISO(), v = this.view(); return (Store.state.updatedAt || '') + '|' + t + '|' + v.date + '|' + JSON.stringify(Store.rawDay(t)) + JSON.stringify(Store.rawDay(addDays(t, -1))) + (v.ahead ? JSON.stringify(Store.rawDay(v.date)) : ''); },
+
+  /** Próximo dia de trabalho depois de "date" (sexta → segunda). Conta também dia com extensão ou com tarefas lançadas. */
+  nextWorkday(date) {
+    const s = shift();
+    for (let i = 1; i <= 7; i++) {
+      const d = addDays(date, i);
+      if (s.weekdays.includes(parseISO(d).getDay()) || Store.extensionsOn(d).length || Store.rawDay(d).length) return d;
+    }
+    return addDays(date, 1);
+  },
+  /** Qual dia a TV mostra. Depois do fim do expediente de hoje (contando extensões), e em dia sem expediente,
+      mostra as atividades do próximo dia de trabalho. */
+  view() {
+    const t = todayISO();
+    if (this.preview && this.preview.key === 'amanha') return { date: this.nextWorkday(t), ahead: true };
+    const s = shiftFor(t), n = nowMin();
+    const works = s.weekdays.includes(parseISO(t).getDay()) || Store.extensionsOn(t).length || Store.rawDay(t).length;
+    const end = [s.end, ...Store.extensionsOn(t).map(x => x.end)].sort().pop();
+    return works && n < toMin(end) ? { date: t, ahead: false } : { date: this.nextWorkday(t), ahead: true };
+  },
 
   /* Faixa de limpeza: mostra a próxima do dia; durante o horário fica em destaque ("Agora"). Some depois do término. */
   cleanState() {
@@ -3129,12 +3151,17 @@ const TV = {
   /** Tarefas que a TV mostra: as de hoje e, depois da meia-noite, as de ontem que terminam hoje
       (ficam até 1 h depois do fim, para dar tempo de marcar como concluída). Cada uma leva a sua data. */
   dayList() {
-    const t = todayISO(), y = addDays(t, -1), n = nowMin();
+    const t = todayISO(), y = addDays(t, -1), n = nowMin(), v = this.view();
     const carry = Store.day(y).filter(a => crossesMidnight(a.time, a.end) && n < toMin(a.end) + 60).map(a => ({ ...a, date: y, overnight: true }));
+    if (v.ahead) {
+      // depois do expediente: as do próximo dia + as de hoje que seguem noite adentro e ainda não terminaram
+      const night = Store.day(t).filter(a => crossesMidnight(a.time, a.end) && a.status !== 'concluida').map(a => ({ ...a, date: t }));
+      return [...carry, ...night, ...Store.day(v.date).map(a => ({ ...a, date: v.date }))];
+    }
     return [...carry, ...Store.day(t).map(a => ({ ...a, date: t }))];
   },
-  /** Muda quando alguma tarefa atrasa ou quando entra/sai uma tarefa da noite anterior */
-  lateIds() { return this.dayList().map(a => a.id + (isLate(a, a.date) ? '!' : '')).join(','); },
+  /** Muda quando alguma tarefa atrasa, quando entra/sai uma tarefa da noite anterior ou quando a TV passa a mostrar o próximo dia */
+  lateIds() { return this.view().date + '|' + this.dayList().map(a => a.id + (isLate(a, a.date) ? '!' : '')).join(','); },
 
   tickClock() {
     const now = new Date();
@@ -3254,11 +3281,14 @@ const TV = {
   },
 
   render(resetPage) {
-    const today = todayISO();
+    const today = todayISO(), v = this.view();
     Store.ensureRoutine(today);   // primeira exibição do dia: entra a rotina
+    if (v.ahead) Store.ensureRoutine(v.date);   // depois do expediente: rotina do próximo dia já aparece
     this.signature = this.sig();
-    const dateEl = $('#tv-date');
-    dateEl.textContent = formatLong(today); dateEl.dataset.iso = today;
+    const dateEl = $('#tv-date'), kicker = $('.tv-date small');
+    dateEl.textContent = formatLong(v.date); dateEl.dataset.iso = today;
+    const label = !v.ahead ? 'Atividades do dia' : v.date === addDays(today, 1) ? 'Atividades de amanhã' : 'Próximas atividades';
+    kicker.textContent = label; kicker.classList.toggle('ahead', v.ahead);
 
     const all = this.dayList();
     const { busy: cards, idle } = this.cards();
@@ -3287,7 +3317,7 @@ const TV = {
     let pages = 1;
     if (!all.length) {
       grid.className = 'tv-grid'; grid.removeAttribute('style');
-      grid.innerHTML = `<div class="tv-empty"><div><strong>Nenhuma atividade programada para hoje</strong><span>As atividades aparecerão aqui assim que forem atribuídas.</span></div></div>`;
+      grid.innerHTML = `<div class="tv-empty"><div><strong>Nenhuma atividade programada ${v.ahead ? (v.date === addDays(today, 1) ? 'para amanhã' : 'para ' + formatLong(v.date).split(',')[0].toLowerCase()) : 'para hoje'}</strong><span>As atividades aparecerão aqui assim que forem atribuídas.</span></div></div>`;
     } else {
       // 1) Cartões, se todos couberem sem esconder atividades
       const normal = this.layout(cards.length, Math.max(1, ...cards.map(load)));
