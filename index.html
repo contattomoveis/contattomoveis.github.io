@@ -1014,6 +1014,12 @@ th.num{text-align:right}
             <div class="weekdays" id="sh-days"></div>
             <small class="err"></small>
           </div>
+          <div class="field" id="f-sh-next">
+            <label for="sh-next">Liberar as atividades de amanhã na TV às</label>
+            <input class="input" type="time" id="sh-next" style="max-width:180px">
+            <small class="hint">A partir desse horário a TV troca para as atividades do próximo dia de trabalho. Em dia com extensão, a troca acontece com a mesma antecedência antes do novo fim.</small>
+            <small class="err"></small>
+          </div>
           <div class="field">
             <label for="sh-show">Tempo da tela cheia</label>
             <select class="input" id="sh-show">
@@ -1031,7 +1037,7 @@ th.num{text-align:right}
               <button type="button" class="btn btn-secondary btn-sm" data-preview="fim">Fim</button>
               <button type="button" class="btn btn-secondary btn-sm" data-preview="amanha">Amanhã</button>
             </div>
-            <small class="hint">Abre a TV em outra aba, mostrando a tela por 20 segundos. "Amanhã" mostra como a TV fica depois do fim do expediente, com as atividades do próximo dia de trabalho.</small>
+            <small class="hint">Abre a TV em outra aba, mostrando a tela por 20 segundos. "Amanhã" mostra como a TV fica depois do horário de liberação, com as atividades do próximo dia de trabalho.</small>
           </div>
         </form>
         <div class="card" id="account-card" hidden>
@@ -1148,7 +1154,7 @@ const spanMin = (start, end) => { const d = toMin(end) - toMin(start); return d 
 const MAX_SPAN = 16 * 60;   // acima disso é quase sempre horário digitado errado
 /** Valida o fim em relação ao início: devolve a mensagem de erro ou '' */
 /* ---------- Expediente, extensões e atrasos ---------- */
-const SHIFT_DEFAULT = { start: '07:00', lunch: '11:30', back: '13:30', end: '17:48', weekdays: [1, 2, 3, 4, 5], showMin: 3 };
+const SHIFT_DEFAULT = { start: '07:00', lunch: '11:30', back: '13:30', end: '17:48', nextAt: '17:30', weekdays: [1, 2, 3, 4, 5], showMin: 3 };
 /** Expediente normal (Configurações) */
 const shift = () => ({ ...SHIFT_DEFAULT, ...((typeof Store !== 'undefined' && Store.state.settings.shift) || {}) });
 /** Expediente do dia, já com a extensão para todos (se houver). */
@@ -2367,7 +2373,8 @@ const Editor = {
     $('#sh-start').value = s.start; $('#sh-lunch').value = s.lunch; $('#sh-back').value = s.back; $('#sh-end').value = s.end;
     $$('#sh-days input').forEach(i => i.checked = s.weekdays.includes(+i.value));
     $('#sh-show').value = String(s.showMin);
-    ['f-sh-start', 'f-sh-lunch', 'f-sh-back', 'f-sh-end', 'f-sh-days'].forEach(f => setFieldError(f));
+    $('#sh-next').value = s.nextAt || s.end;
+    ['f-sh-start', 'f-sh-lunch', 'f-sh-back', 'f-sh-end', 'f-sh-next', 'f-sh-days'].forEach(f => setFieldError(f));
   },
 
   /* ---------- Relatório de produtividade ---------- */
@@ -2987,13 +2994,14 @@ const Editor = {
     // Expediente (Configurações)
     $('#form-shift').addEventListener('submit', e => {
       e.preventDefault();
-      const v = { start: $('#sh-start').value, lunch: $('#sh-lunch').value, back: $('#sh-back').value, end: $('#sh-end').value };
+      const v = { start: $('#sh-start').value, lunch: $('#sh-lunch').value, back: $('#sh-back').value, end: $('#sh-end').value, nextAt: $('#sh-next').value };
       const weekdays = $$('#sh-days input:checked').map(i => +i.value);
       const ok = [
         setFieldError('f-sh-start', v.start ? '' : 'Informe o início.'),
         setFieldError('f-sh-lunch', !v.lunch ? 'Informe o almoço.' : v.lunch <= v.start ? 'Deve ser depois do início.' : ''),
         setFieldError('f-sh-back', !v.back ? 'Informe a volta.' : v.back <= v.lunch ? 'Deve ser depois do almoço.' : ''),
         setFieldError('f-sh-end', !v.end ? 'Informe o fim.' : v.end <= v.back ? 'Deve ser depois da volta do almoço.' : ''),
+        setFieldError('f-sh-next', !v.nextAt ? 'Informe o horário.' : v.nextAt > v.end ? 'Deve ser até o fim do expediente.' : v.nextAt <= v.start ? 'Deve ser depois do início.' : ''),
         setFieldError('f-sh-days', weekdays.length ? '' : 'Marque ao menos um dia.')
       ].every(Boolean);
       if (!ok) return;
@@ -3052,15 +3060,16 @@ const TV = {
     }
     return addDays(date, 1);
   },
-  /** Qual dia a TV mostra. Depois do fim do expediente de hoje (contando extensões), e em dia sem expediente,
-      mostra as atividades do próximo dia de trabalho. */
+  /** Qual dia a TV mostra. A partir do horário de liberação (padrão 17:30, antes do fim às 17:48), e em dia sem
+      expediente, mostra as atividades do próximo dia de trabalho. Com extensão, libera com a mesma antecedência antes do novo fim. */
   view() {
     const t = todayISO();
     if (this.preview && this.preview.key === 'amanha') return { date: this.nextWorkday(t), ahead: true };
     const s = shiftFor(t), n = nowMin();
     const works = s.weekdays.includes(parseISO(t).getDay()) || Store.extensionsOn(t).length || Store.rawDay(t).length;
-    const end = [s.end, ...Store.extensionsOn(t).map(x => x.end)].sort().pop();
-    return works && n < toMin(end) ? { date: t, ahead: false } : { date: this.nextWorkday(t), ahead: true };
+    const base = shift(), end = [s.end, ...Store.extensionsOn(t).map(x => x.end)].sort().pop();
+    const lead = Math.max(0, toMin(base.end) - toMin(base.nextAt || base.end));   // 17:48 − 17:30 = 18 min
+    return works && n < toMin(end) - lead ? { date: t, ahead: false } : { date: this.nextWorkday(t), ahead: true };
   },
 
   /* Faixa de limpeza: mostra a próxima do dia; durante o horário fica em destaque ("Agora"). Some depois do término. */
