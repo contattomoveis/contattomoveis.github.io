@@ -177,10 +177,19 @@ textarea.input{font-family:inherit;height:auto;min-height:190px;padding:10px 12p
 .roles[hidden]{display:none}
 .roles-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--olive)}
 .field .role-row,.field .role-row b{text-transform:none;letter-spacing:0;color:var(--text,inherit)}
-.role-row{display:grid;grid-template-columns:minmax(90px,38%) 1fr;align-items:center;gap:8px}
+.role-row{display:grid;grid-template-columns:1fr 118px;align-items:center;gap:6px 8px;padding:6px 0;border-top:1px solid rgba(0,0,0,.06)}
+.role-row:first-of-type{border-top:0}
+.role-row .input[data-role]{grid-column:1 / -1}
+.post-select{height:32px!important;font-size:13.5px!important;padding:0 8px!important;font-weight:700}
+.post-select.post-operador{background:var(--olive);color:#fff;border-color:var(--olive)}
+.post-select.post-ajudante{background:#fff;color:var(--olive);border-color:var(--olive)}
+.as-item .role-edit .post-select{width:118px;flex:none;height:30px!important}
+.as-item .post-badge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:2px}
+.post-badge.operador{background:var(--olive);color:#fff}
+.post-badge.ajudante{background:var(--olive-100);color:var(--olive);border:1px solid var(--olive)}
 .role-row b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .role-row .input{height:36px;font-size:14px;padding:0 10px}
-.as-item .role-edit{display:flex;align-items:center;gap:6px;margin-top:4px}
+.as-item .role-edit{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
 .as-item .role-edit span{font-size:12px;font-weight:700;color:var(--olive);white-space:nowrap}
 .as-item .role-edit .input{height:30px;font-size:13.5px;padding:0 8px;max-width:280px;flex:1}
 .team{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:13px;font-weight:600;color:var(--olive)}
@@ -347,6 +356,8 @@ tr.released td{color:var(--gray-500)}
 .tv-tag.alta{background:var(--danger-tv);color:var(--charcoal-950)}
 .tv-tag.andamento{background:var(--olive-400);color:var(--charcoal-950)}
 .tv-tag.noite{background:#c9c4f2;color:var(--charcoal-950)}
+.tv-tag.operador{background:#f4d77a;color:var(--charcoal-950)}
+.tv-tag.ajudante{background:transparent;color:#f4d77a;box-shadow:inset 0 0 0 .12em #f4d77a}
 .tv-item.s-concluida{opacity:.5;background:transparent}
 .tv-item.s-concluida .tv-desc{text-decoration:line-through}
 .tv-card{position:relative}
@@ -1345,6 +1356,11 @@ const SyncUI = {
    ========================================================================= */
 const PRIORITY = { alta: { label: 'Alta', ord: 0 }, normal: { label: 'Normal', ord: 1 }, baixa: { label: 'Baixa', ord: 2 } };
 const STATUS   = { pendente: 'Pendente', andamento: 'Em andamento', concluida: 'Concluída' };
+/** Posição na tarefa em equipe (ex.: na máquina) */
+const POSTS    = { operador: 'Operador', ajudante: 'Ajudante' };
+const postSelect = (value, attrs) => `<select class="input post-select ${value ? 'post-' + value : ''}" ${attrs}><option value="">Sem função</option>${Object.entries(POSTS).map(([k, v]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${v}</option>`).join('')}</select>`;
+/** "ajudante · lixa as bordas" */
+const postRole = x => [x.post ? POSTS[x.post].toLowerCase() : '', x.role || ''].filter(Boolean).join(' · ');
 
 const emptyState = () => ({ schemaVersion: 1, updatedAt: null, settings: { pinHash: null }, collaborators: [], activities: [], assignments: {}, maintenances: [], routines: [], routineDays: {}, cleanings: [], machines: [], extensions: [] });
 
@@ -1437,12 +1453,12 @@ const Store = {
   },
   /** Atribui uma atividade a um ou mais colaboradores. Com 2 ou mais, todos recebem o mesmo
       groupId: é uma tarefa em equipe (status e horário ficam sincronizados). Devolve os ids criados. */
-  addAssignment(date, { collaboratorIds, activityId, time, end = '', roles = {} }) {
+  addAssignment(date, { collaboratorIds, activityId, time, end = '', roles = {}, posts = {} }) {
     const groupId = collaboratorIds.length > 1 ? uid() : null;
     const now = new Date().toISOString();
     const ids = collaboratorIds.map(collaboratorId => {
       const id = uid();
-      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, end, role: roles[collaboratorId] || '', status: 'pendente', groupId, updatedAt: now });
+      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, end, role: roles[collaboratorId] || '', post: posts[collaboratorId] || '', status: 'pendente', groupId, updatedAt: now });
       return id;
     });
     this.commit(); return ids;
@@ -1459,7 +1475,9 @@ const Store = {
     if (!a) return null;
     a.groupId ||= uid();
     const nid = uid();
-    this.rawDay(date).push({ id: nid, collaboratorId, activityId: a.activityId, time: a.time, end: a.end || '', status: a.status, groupId: a.groupId, updatedAt: new Date().toISOString() });
+    const firstJoin = !this.rawDay(date).some(x => x.groupId === a.groupId && x.id !== a.id);
+    if (firstJoin && !a.post) a.post = 'operador';   // virou equipe: quem já estava é o operador
+    this.rawDay(date).push({ id: nid, collaboratorId, activityId: a.activityId, time: a.time, end: a.end || '', role: '', post: '', status: a.status, groupId: a.groupId, updatedAt: new Date().toISOString() });
     this.commit(); return nid;
   },
   /** Atualiza a atribuição e, se for em equipe, as dos colegas também. */
@@ -1486,11 +1504,19 @@ const Store = {
     a.role = role; a.updatedAt = new Date().toISOString();
     this.commit();
   },
+  /** Operador ou ajudante (só desta pessoa) */
+  setPost(date, id, post) {
+    const a = this.rawDay(date).find(x => x.id === id);
+    if (!a) return;
+    a.post = POSTS[post] ? post : ''; a.updatedAt = new Date().toISOString();
+    this.commit();
+  },
   /** Colegas da mesma tarefa em equipe, já com o que cada um faz: [{ c, role }] */
   teamWithRoles(date, a) {
     if (!a || !a.groupId) return [];
     return this.rawDay(date).filter(x => x.groupId === a.groupId && x.id !== a.id)
-      .map(x => ({ c: this.getCollaborator(x.collaboratorId), role: x.role || '' })).filter(x => x.c);
+      .map(x => ({ c: this.getCollaborator(x.collaboratorId), role: x.role || '', post: x.post || '' })).filter(x => x.c)
+      .sort((p, q) => (p.post === 'operador' ? 0 : 1) - (q.post === 'operador' ? 0 : 1));
   },
   removeAssignment(date, id) {
     this.state.assignments[date] = this.rawDay(date).filter(a => a.id !== id);
@@ -2020,13 +2046,16 @@ const Editor = {
     this.renderRoles();
   },
   /* "O que cada um faz": um campo por pessoa quando a tarefa é em equipe (mesma atividade / mesma máquina) */
-  roles: {},
+  roles: {}, posts: {},
   renderRoles() {
     const box = $('#as-roles'), main = $('#as-colab').value, ids = main && this.team.length ? [main, ...this.team] : [];
     $$('#as-roles input').forEach(i => { this.roles[i.dataset.role] = i.value; });   // guarda o que já foi digitado
     box.hidden = !ids.length;
-    box.innerHTML = ids.length ? `<div class="roles-title">O que cada um faz <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(opcional)</span></div>` +
-      ids.map(id => `<label class="role-row"><b>${esc(Store.getCollaborator(id).name)}</b><input class="input" maxlength="60" data-role="${id}" value="${esc(this.roles[id] || '')}" placeholder="Ex.: lixa as bordas"></label>`).join('') : '';
+    $$('#as-roles select[data-post]').forEach(i => { this.posts[i.dataset.post] = i.value; });
+    // padrão: quem está em "Colaborador" é o operador; os demais ficam sem função (ajudante é opcional)
+    ids.forEach(id => { if (!(id in this.posts)) this.posts[id] = id === main ? 'operador' : ''; });
+    box.innerHTML = ids.length ? `<div class="roles-title">Operador, ajudantes e o que cada um faz <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(opcional)</span></div>` +
+      ids.map(id => `<div class="role-row"><b>${esc(Store.getCollaborator(id).name)}</b>${postSelect(this.posts[id], `data-post="${id}" aria-label="Função de ${esc(Store.getCollaborator(id).name)}"`)}<input class="input" maxlength="60" data-role="${id}" value="${esc(this.roles[id] || '')}" placeholder="O que faz (opcional). Ex.: lixa as bordas"></div>`).join('') : '';
   },
 
   /* ---------- Lista de atribuições do dia, agrupada por colaborador ---------- */
@@ -2054,11 +2083,11 @@ const Editor = {
         ${items.map(a => `
         <div class="as-item ${a.status === 'concluida' ? 'done' : ''} ${isLate(a, this.refDate) ? 'late' : ''}" id="as-${a.id}" data-id="${a.id}">
           <div class="times"><input class="input" type="time" value="${esc(a.time)}" data-act="time" aria-label="Início"><span>–</span><input class="input" type="time" value="${esc(a.end || '')}" data-act="end" aria-label="Fim"></div>
-          <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}${isLate(a, this.refDate) ? `<span class="tag-late">${icon('alert')}Atrasada</span>` : ''}
+          <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}${a.groupId && a.post ? `<span class="post-badge ${a.post}">${POSTS[a.post]}</span>` : ''}${isLate(a, this.refDate) ? `<span class="tag-late">${icon('alert')}Atrasada</span>` : ''}
             ${crossesMidnight(a.time, a.end) ? `<div class="real night">${icon('moon')}Termina às ${esc(a.end)} do dia seguinte</div>` : ''}
             ${a.startedAt || a.doneAt ? `<div class="real">${a.startedAt ? 'Iniciada às ' + hhmmOf(a.startedAt) : ''}${a.startedAt && a.doneAt ? ' · ' : ''}${a.doneAt ? 'concluída às ' + hhmmOf(a.doneAt) : ''}</div>` : ''}
-            ${(() => { const t = Store.teamWithRoles(this.refDate, a); return t.length ? `<div class="team">${icon('users')}<span>com ${t.map(x => esc(x.c.name) + (x.role ? ` <span class="muted" style="font-weight:500">(${esc(x.role)})</span>` : '')).join(', ')}</span></div>
-              <label class="role-edit"><span>O que faz:</span><input class="input" maxlength="60" data-act="role" value="${esc(a.role || '')}" placeholder="Ex.: lixa as bordas"></label>` : ''; })()}
+            ${(() => { const t = Store.teamWithRoles(this.refDate, a); return t.length ? `<div class="team">${icon('users')}<span>com ${t.map(x => esc(x.c.name) + (postRole(x) ? ` <span class="muted" style="font-weight:500">(${esc(postRole(x))})</span>` : '')).join(', ')}</span></div>
+              <div class="role-edit">${postSelect(a.post || '', 'data-act="post" aria-label="Função"')}<span>O que faz:</span><input class="input" maxlength="60" data-act="role" value="${esc(a.role || '')}" placeholder="Ex.: lixa as bordas"></div>` : ''; })()}
             <button type="button" class="link-btn" data-act="join">+ incluir colaborador</button></div>
           <select class="input status-select s-${a.status}" data-act="status" aria-label="Status">
             ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === a.status ? 'selected' : ''}>${v}</option>`).join('')}
@@ -2451,6 +2480,11 @@ const Editor = {
       setFieldError('f-as-activity'); setFieldError('f-as-machine');
     });
     $('#as-colab').addEventListener('change', () => { setFieldError('f-as-colab'); this.renderTeamPicker(); });
+    $('#as-roles').addEventListener('change', e => {
+      const sel = e.target.closest('select[data-post]'); if (!sel) return;
+      this.posts[sel.dataset.post] = sel.value;
+      sel.className = 'input post-select' + (sel.value ? ' post-' + sel.value : '');
+    });
     ['#as-time', '#as-end'].forEach(sel => $(sel).addEventListener('change', () => setFieldError('f-as-end')));
     $('#as-team-add').addEventListener('change', e => {
       if (!e.target.value) return;
@@ -2477,9 +2511,11 @@ const Editor = {
       }
       $$('#as-roles input').forEach(i => { this.roles[i.dataset.role] = i.value; });
       const roles = Object.fromEntries(collaboratorIds.length > 1 ? collaboratorIds.map(id => [id, cleanText(this.roles[id] || '').slice(0, 60)]) : []);
-      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time, end, roles });
+      $$('#as-roles select[data-post]').forEach(i => { this.posts[i.dataset.post] = i.value; });
+      const posts = Object.fromEntries(collaboratorIds.length > 1 ? collaboratorIds.map(id => [id, POSTS[this.posts[id]] ? this.posts[id] : '']) : []);
+      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time, end, roles, posts });
       $('#as-activity').value = ''; $('#as-time').value = ''; $('#as-end').value = '';   // mantém o colaborador (e a máquina) para agilizar várias atribuições
-      this.team = []; this.roles = {}; this.renderTeamPicker();
+      this.team = []; this.roles = {}; this.posts = {}; this.renderTeamPicker();
       this.renderDate(); this.renderAssignList(); this.renderCounts(); this.renderCollabs();
       flash('#as-' + ids[0]);
       toast((ids.length > 1 ? `Tarefa em equipe atribuída a ${ids.length} colaboradores.` : 'Atividade atribuída.') + (crossesMidnight(time, end) ? ` Termina às ${end} do dia seguinte.` : ''));
@@ -2506,6 +2542,10 @@ const Editor = {
         Store.updateAssignment(this.refDate, row.dataset.id, { status: e.target.value });
         this.renderAssignList(); this.renderDate(); flash('#as-' + row.dataset.id);
         toast(`Status: ${STATUS[e.target.value]}.` + (Store.teammates(this.refDate, Store.rawDay(this.refDate).find(x => x.id === row.dataset.id)).length ? ' Atualizado para toda a equipe.' : ''));
+      } else if (act === 'post') {
+        Store.setPost(this.refDate, row.dataset.id, e.target.value);
+        this.renderAssignList(); flash('#as-' + row.dataset.id);
+        toast(e.target.value ? `Definido como ${POSTS[e.target.value].toLowerCase()}.` : 'Função removida.');
       } else if (act === 'role') {
         const role = cleanText(e.target.value).slice(0, 60);
         Store.setRole(this.refDate, row.dataset.id, role);
@@ -3159,6 +3199,7 @@ const TV = {
     const t = [];
     if (isLate(a, a.date)) t.push('<span class="tv-tag atrasada">Atrasada</span>');
     if (a.overnight && a.status !== 'concluida') t.push('<span class="tv-tag noite">Desde ontem</span>');
+    if (a.groupId && POSTS[a.post]) t.unshift(`<span class="tv-tag ${a.post}">${POSTS[a.post]}</span>`);
     if (a.activity.priority === 'alta' && a.status !== 'concluida') t.push('<span class="tv-tag alta">Prioridade</span>');
     if (a.status === 'andamento') t.push('<span class="tv-tag andamento">Em andamento</span>');
     return t.join('');
@@ -3177,7 +3218,7 @@ const TV = {
         const t = Store.teamWithRoles(a.date || today, a);
         return `<li class="tv-item p-${a.activity.priority} s-${a.status} ${isLate(a, a.date) ? 'late' : ''}">
           ${a.time ? `<span class="tv-time">${a.time}${a.end ? `<small>${a.end}</small>` : ''}</span>` : '<span class="tv-time none"></span>'}
-          <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${a.role ? `<span class="tv-role">${esc(a.role)}</span>` : ''}${t.length ? `<span class="tv-with">com ${esc(t.map(x => x.c.name.split(' ')[0] + (x.role ? ` (${x.role})` : '')).join(', '))}</span>` : ''}</span>
+          <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${a.role ? `<span class="tv-role">${esc(a.role)}</span>` : ''}${t.length ? `<span class="tv-with">com ${esc(t.map(x => x.c.name.split(' ')[0] + (postRole(x) ? ` (${postRole(x)})` : '')).join(', '))}</span>` : ''}</span>
         </li>`; }).join('')}</ul>
     </article>`;
   },
