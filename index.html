@@ -3056,7 +3056,7 @@ const TV = {
         el.innerHTML = `<img class="tv-shift-logo" src="${$('.tv-logo').src}" alt=""><div class="tv-shift-clock"></div>
           <div class="tv-shift-inner"><div class="tv-shift-icon">${icon(st.ev.icon)}</div><div class="tv-shift-time">${st.ev.at}</div>
           <h1>${esc(st.ev.title)}</h1><p>${esc(st.ev.sub)}</p><div class="tv-shift-next">${esc(st.ev.next)}</div></div>
-          ${/^fim/.test(st.ev.key) ? `<div class="tv-shift-recorp"><small>Powered by</small><img src="${$('.tv-recorp img').src}" alt="Recorp Resultados Corporativos"></div>` : ''}
+          <div class="tv-shift-recorp"><small>Powered by</small><img src="${$('.tv-recorp img').src}" alt="Recorp Resultados Corporativos"></div>
           <div class="tv-shift-bar"><i></i></div>`;
         el.hidden = false;
       } else if (!el.hidden) {
