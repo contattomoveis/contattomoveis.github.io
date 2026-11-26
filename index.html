@@ -333,6 +333,7 @@ tr.released td{color:var(--gray-500)}
 .tv-tag{display:inline-block;font-size:.6em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.15em .55em;border-radius:.4em;margin-right:.6em;vertical-align:.2em;line-height:1.2}
 .tv-tag.alta{background:var(--danger-tv);color:var(--charcoal-950)}
 .tv-tag.andamento{background:var(--olive-400);color:var(--charcoal-950)}
+.tv-tag.noite{background:#c9c4f2;color:var(--charcoal-950)}
 .tv-item.s-concluida{opacity:.5;background:transparent}
 .tv-item.s-concluida .tv-desc{text-decoration:line-through}
 .tv-card{position:relative}
@@ -435,6 +436,8 @@ tbody tr:hover td{background:var(--olive-50)}
 .tag-late{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;background:var(--danger);color:#fff;vertical-align:middle}
 .tag-late svg{width:12px;height:12px}
 .as-item .real{font-size:12px;color:var(--gray-500);font-weight:500;margin-top:2px}
+.as-item .real.night{display:flex;align-items:center;gap:5px;color:var(--olive);font-weight:600}
+.as-item .real.night svg{width:14px;height:14px;flex:none}
 /* TV: tarefa atrasada */
 .tv-item.late{border-left-color:var(--danger-tv);background:rgba(232,121,107,.16)}
 .tv-item.late .tv-time{color:var(--danger-tv)}
@@ -1110,7 +1113,12 @@ const formatShort = iso => iso ? iso.split('-').reverse().join('/') : '';       
 const formatDM    = iso => iso ? iso.split('-').reverse().slice(0, 2).join('/') : ''; // → DD/MM
 const formatTime  = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 /** "07:30–09:00", "07:30" ou "" */
-const fmtRange    = (start, end) => start ? (end ? `${start}–${end}` : start) : '';
+const fmtRange    = (start, end) => start ? (end ? `${start}–${end}${crossesMidnight(start, end) ? ' (+1 dia)' : ''}` : start) : '';
+/** Termina depois da meia-noite? (fim "menor" que o início = dia seguinte, ex.: 22:00–02:00) */
+const crossesMidnight = (start, end) => !!(start && end && end < start);
+/** Minutos do início ao fim, contando a virada da meia-noite */
+const spanMin = (start, end) => { const d = toMin(end) - toMin(start); return d < 0 ? d + 1440 : d; };
+const MAX_SPAN = 16 * 60;   // acima disso é quase sempre horário digitado errado
 /** Valida o fim em relação ao início: devolve a mensagem de erro ou '' */
 /* ---------- Expediente, extensões e atrasos ---------- */
 const SHIFT_DEFAULT = { start: '07:00', lunch: '11:30', back: '13:30', end: '17:48', weekdays: [1, 2, 3, 4, 5], showMin: 3 };
@@ -1127,17 +1135,17 @@ const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMin
 /** Minutos do intervalo [a, b] (minutos do dia) que caem no almoço */
 function lunchOverlap(a, b) { const s = shift(), l = toMin(s.lunch), r = toMin(s.back); return Math.max(0, Math.min(b, r) - Math.max(a, l)); }
 /** Atrasada = não concluída e já passou do fim previsto (sem fim: 1 hora depois do início). */
-function isLate(a, date, now = nowMin()) {
+function isLate(a, date, now = Date.now()) {
   if (!a || a.status === 'concluida' || !a.time) return false;
-  const t = todayISO();
-  if (date > t) return false;
-  const limit = a.end ? toMin(a.end) : toMin(a.time) + 60;
-  return date < t || now > limit;
+  const limit = toMin(a.time) + (a.end ? spanMin(a.time, a.end) : 60);   // minutos desde a meia-noite do dia da tarefa
+  const d = parseISO(date); d.setMinutes(limit);
+  return now > d.getTime();
 }
 /** 95 → "1h 35min" · 40 → "40 min" */
 const fmtDur = m => { if (m == null || isNaN(m)) return '—'; m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? `${h}h${r ? ' ' + pad(r) + 'min' : ''}` : `${r} min`; };
 const hhmmOf = iso => iso ? formatTime(new Date(iso)) : '';
-const endError    = (start, end) => !end ? '' : !start ? 'Informe também o início.' : end <= start ? 'O fim deve ser depois do início.' : '';
+const endError    = (start, end) => !end ? '' : !start ? 'Informe também o início.' : end === start ? 'O fim deve ser diferente do início.'
+  : spanMin(start, end) > MAX_SPAN ? (end < start ? `Fim no dia seguinte só até 16 h de duração. Se termina no mesmo dia, o fim deve ser depois de ${start}.` : 'Duração acima de 16 h. Confira os horários.') : '';
 const initials    = name => name.trim().split(/\s+/).filter(Boolean).map(p => p[0]).filter((_, i, a) => i === 0 || i === a.length - 1).join('').toUpperCase();
 const norm        = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const plural      = (n, s, p) => `${n} ${n === 1 ? s : p}`;
@@ -1844,7 +1852,7 @@ const Report = {
   },
   /** Medidas de uma tarefa: tempo previsto, tempo real, no prazo, atrasada */
   item(a, date) {
-    const planned = a.time && a.end ? Math.max(0, toMin(a.end) - toMin(a.time) - lunchOverlap(toMin(a.time), toMin(a.end))) : null;
+    const planned = a.time && a.end ? Math.max(0, spanMin(a.time, a.end) - lunchOverlap(toMin(a.time), toMin(a.time) + spanMin(a.time, a.end))) : null;
     const done = a.status === 'concluida';
     const startTs = a.startedAt ? new Date(a.startedAt) : a.time ? this.at(date, a.time) : null;
     const doneTs = a.doneAt ? new Date(a.doneAt) : null;
@@ -1853,7 +1861,7 @@ const Report = {
       const sm = startTs.getHours() * 60 + startTs.getMinutes(), mins = (doneTs - startTs) / 60000;
       real = Math.max(1, Math.round(mins - lunchOverlap(sm, sm + mins))); measured = true;
     } else if (done && planned != null) real = planned;
-    const endTs = a.end ? this.at(date, a.end) : null;
+    const endTs = a.end ? (a.time ? new Date(this.at(date, a.time).getTime() + spanMin(a.time, a.end) * 60e3) : this.at(date, a.end)) : null;
     const onTime = done ? (endTs && doneTs ? doneTs <= new Date(endTs.getTime() + 5 * 60e3) : null) : null;
     const late = done ? onTime === false : isLate(a, date);
     return { planned, real, measured, done, onTime, late };
@@ -2010,6 +2018,7 @@ const Editor = {
         <div class="as-item ${a.status === 'concluida' ? 'done' : ''} ${isLate(a, this.refDate) ? 'late' : ''}" id="as-${a.id}" data-id="${a.id}">
           <div class="times"><input class="input" type="time" value="${esc(a.time)}" data-act="time" aria-label="Início"><span>–</span><input class="input" type="time" value="${esc(a.end || '')}" data-act="end" aria-label="Fim"></div>
           <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}${isLate(a, this.refDate) ? `<span class="tag-late">${icon('alert')}Atrasada</span>` : ''}
+            ${crossesMidnight(a.time, a.end) ? `<div class="real night">${icon('moon')}Termina às ${esc(a.end)} do dia seguinte</div>` : ''}
             ${a.startedAt || a.doneAt ? `<div class="real">${a.startedAt ? 'Iniciada às ' + hhmmOf(a.startedAt) : ''}${a.startedAt && a.doneAt ? ' · ' : ''}${a.doneAt ? 'concluída às ' + hhmmOf(a.doneAt) : ''}</div>` : ''}
             ${(() => { const t = Store.teammates(this.refDate, a); return t.length ? `<div class="team">${icon('users')}com ${esc(t.map(c => c.name).join(', '))}</div>` : ''; })()}
             <button type="button" class="link-btn" data-act="join">+ incluir colaborador</button></div>
@@ -2433,7 +2442,7 @@ const Editor = {
       this.team = []; this.renderTeamPicker();
       this.renderDate(); this.renderAssignList(); this.renderCounts(); this.renderCollabs();
       flash('#as-' + ids[0]);
-      toast(ids.length > 1 ? `Tarefa em equipe atribuída a ${ids.length} colaboradores.` : 'Atividade atribuída.');
+      toast((ids.length > 1 ? `Tarefa em equipe atribuída a ${ids.length} colaboradores.` : 'Atividade atribuída.') + (crossesMidnight(time, end) ? ` Termina às ${end} do dia seguinte.` : ''));
     });
     $('#btn-copy-prev').addEventListener('click', async () => {
       const prev = addDays(this.refDate, -1);
@@ -2943,9 +2952,9 @@ const TV = {
   /* Recarrega do armazenamento e só redesenha se algo mudou (ou o dia virou) */
   refresh() {
     Store.load();
-    const sig = (Store.state.updatedAt || '') + '|' + todayISO() + '|' + JSON.stringify(Store.rawDay(todayISO()));
-    if (sig !== this.signature) this.render(false);
+    if (this.sig() !== this.signature) this.render(false);
   },
+  sig() { const t = todayISO(); return (Store.state.updatedAt || '') + '|' + t + '|' + JSON.stringify(Store.rawDay(t)) + JSON.stringify(Store.rawDay(addDays(t, -1))); },
 
   /* Faixa de limpeza: mostra a próxima do dia; durante o horário fica em destaque ("Agora"). Some depois do término. */
   cleanState() {
@@ -3032,7 +3041,15 @@ const TV = {
     el.hidden = !st;
     if (st) el.innerHTML = `<div class="tv-break-title">${icon(st.kind === 'almoco' ? 'meal' : 'clock')}${st.title}</div><b>${esc(st.b)}</b><span>${esc(st.span)}</span>`;
   },
-  lateIds(today = todayISO()) { return Store.day(today).filter(a => isLate(a, today)).map(a => a.id).join(','); },
+  /** Tarefas que a TV mostra: as de hoje e, depois da meia-noite, as de ontem que terminam hoje
+      (ficam até 1 h depois do fim, para dar tempo de marcar como concluída). Cada uma leva a sua data. */
+  dayList() {
+    const t = todayISO(), y = addDays(t, -1), n = nowMin();
+    const carry = Store.day(y).filter(a => crossesMidnight(a.time, a.end) && n < toMin(a.end) + 60).map(a => ({ ...a, date: y, overnight: true }));
+    return [...carry, ...Store.day(t).map(a => ({ ...a, date: t }))];
+  },
+  /** Muda quando alguma tarefa atrasa ou quando entra/sai uma tarefa da noite anterior */
+  lateIds() { return this.dayList().map(a => a.id + (isLate(a, a.date) ? '!' : '')).join(','); },
 
   tickClock() {
     const now = new Date();
@@ -3078,7 +3095,7 @@ const TV = {
 
   /** Separa quem tem atividade hoje (vira cartão) de quem não tem (vai para a faixa do rodapé). */
   cards() {
-    const day = Store.day(todayISO());
+    const day = this.dayList();
     const byCollab = new Map(Store.collaborators().map(c => [c.id, { c, items: [] }]));
     day.forEach(a => byCollab.get(a.collaboratorId)?.items.push(a));
     const groups = [...byCollab.values()].map(g => ({ ...g, items: sortAssignments(g.items) }));
@@ -3095,7 +3112,8 @@ const TV = {
   // Etiquetas vão no INÍCIO da descrição: assim nunca são cortadas quando o texto é longo
   tags(a) {
     const t = [];
-    if (isLate(a, todayISO())) t.push('<span class="tv-tag atrasada">Atrasada</span>');
+    if (isLate(a, a.date)) t.push('<span class="tv-tag atrasada">Atrasada</span>');
+    if (a.overnight && a.status !== 'concluida') t.push('<span class="tv-tag noite">Desde ontem</span>');
     if (a.activity.priority === 'alta' && a.status !== 'concluida') t.push('<span class="tv-tag alta">Prioridade</span>');
     if (a.status === 'andamento') t.push('<span class="tv-tag andamento">Em andamento</span>');
     return t.join('');
@@ -3103,7 +3121,7 @@ const TV = {
 
   cardHTML({ c, items }, i, today) {
     const done = items.filter(a => a.status === 'concluida').length;
-    const hasLate = items.some(a => isLate(a, today));
+    const hasLate = items.some(a => isLate(a, a.date));
     return `<article class="tv-card ${hasLate ? 'has-late' : ''}" style="animation-delay:${i * 40}ms">
       <div class="tv-card-head">
         <div class="tv-avatar">${esc(initials(c.name))}</div>
@@ -3111,8 +3129,8 @@ const TV = {
         <div class="tv-progress-txt">${done}/${items.length}</div>
       </div>
       <ul class="tv-list">${items.map(a => {
-        const t = Store.teammates(today, a);
-        return `<li class="tv-item p-${a.activity.priority} s-${a.status} ${isLate(a, today) ? 'late' : ''}">
+        const t = Store.teammates(a.date || today, a);
+        return `<li class="tv-item p-${a.activity.priority} s-${a.status} ${isLate(a, a.date) ? 'late' : ''}">
           ${a.time ? `<span class="tv-time">${a.time}${a.end ? `<small>${a.end}</small>` : ''}</span>` : '<span class="tv-time none"></span>'}
           <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${t.length ? `<span class="tv-with">com ${esc(t.map(c => c.name.split(' ')[0]).join(', '))}</span>` : ''}</span>
         </li>`; }).join('')}</ul>
@@ -3152,18 +3170,18 @@ const TV = {
   render(resetPage) {
     const today = todayISO();
     Store.ensureRoutine(today);   // primeira exibição do dia: entra a rotina
-    this.signature = (Store.state.updatedAt || '') + '|' + today + '|' + JSON.stringify(Store.rawDay(today));
+    this.signature = this.sig();
     const dateEl = $('#tv-date');
     dateEl.textContent = formatLong(today); dateEl.dataset.iso = today;
 
-    const all = Store.day(today);
+    const all = this.dayList();
     const { busy: cards, idle } = this.cards();
 
     this.renderClean();
     this.renderBreak();
     // Alerta de atrasadas no topo
-    const lateN = all.filter(a => isLate(a, today)).length, alertEl = $('#tv-alert');
-    this.lateKey = this.lateIds(today);
+    const lateN = all.filter(a => isLate(a, a.date)).length, alertEl = $('#tv-alert');
+    this.lateKey = this.lateIds();
     alertEl.hidden = !lateN;
     alertEl.innerHTML = `${icon('alert')}${plural(lateN, 'atividade atrasada', 'atividades atrasadas')}`;
     // Faixa de máquinas em manutenção (também antes de medir a grade)
@@ -3179,7 +3197,7 @@ const TV = {
 
     const grid = $('#tv-grid');
     // "Peso" de cada cartão: atividades com colega ("com Fulano") ou descrição longa ocupam mais altura
-    const load = g => g.items.reduce((t, a) => t + 1 + (Store.teammates(today, a).length ? 0.5 : 0) + (a.activity.description.length > 24 ? 0.45 : 0), 0);
+    const load = g => g.items.reduce((t, a) => t + 1 + (Store.teammates(a.date || today, a).length ? 0.5 : 0) + (a.activity.description.length > 24 ? 0.45 : 0), 0);
     let pages = 1;
     if (!all.length) {
       grid.className = 'tv-grid'; grid.removeAttribute('style');
