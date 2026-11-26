@@ -173,6 +173,16 @@ textarea.input{font-family:inherit;height:auto;min-height:190px;padding:10px 12p
 .chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 6px 0 12px;border-radius:999px;background:var(--olive-100);color:var(--olive);font-weight:600;font-size:14px}
 .chip button{border:0;background:none;width:22px;height:22px;border-radius:50%;cursor:pointer;color:var(--olive);font-size:16px;line-height:1;display:grid;place-items:center}
 .chip button:hover{background:#fff}
+.roles{display:grid;gap:6px;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--olive-100)}
+.roles[hidden]{display:none}
+.roles-title{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--olive)}
+.field .role-row,.field .role-row b{text-transform:none;letter-spacing:0;color:var(--text,inherit)}
+.role-row{display:grid;grid-template-columns:minmax(90px,38%) 1fr;align-items:center;gap:8px}
+.role-row b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-row .input{height:36px;font-size:14px;padding:0 10px}
+.as-item .role-edit{display:flex;align-items:center;gap:6px;margin-top:4px}
+.as-item .role-edit span{font-size:12px;font-weight:700;color:var(--olive);white-space:nowrap}
+.as-item .role-edit .input{height:30px;font-size:13.5px;padding:0 8px;max-width:280px;flex:1}
 .team{display:flex;align-items:center;gap:5px;margin-top:3px;font-size:13px;font-weight:600;color:var(--olive)}
 .team svg{width:15px;height:15px;flex:none}
 .as-item .link-btn{display:block;margin-top:2px;padding-left:0;font-size:12px}
@@ -328,6 +338,9 @@ tr.released td{color:var(--gray-500)}
 .tv-item:has(.tv-time.none){grid-template-columns:1fr}
 .tv-mq{font-size:.6em;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--olive-300);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
 .tv-grid.list .tv-mq{font-size:.72em;align-self:center}
+.tv-role{display:block;font-size:.78em;font-weight:800;color:#f4d77a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;margin-top:.05em}
+.tv-role::before{content:"▸ ";color:var(--olive-300)}
+.tv-grid.list .tv-role{display:inline;margin:0}
 .tv-with{font-size:.72em;color:var(--olive-300);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.1em}
 .tv-desc{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .tv-tag{display:inline-block;font-size:.6em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.15em .55em;border-radius:.4em;margin-right:.6em;vertical-align:.2em;line-height:1.2}
@@ -592,6 +605,7 @@ th.num{text-align:right}
             <label for="as-team-add">Junto com <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(opcional — tarefa em equipe)</span></label>
             <div class="chips" id="as-team-chips"></div>
             <select class="input" id="as-team-add"></select>
+            <div class="roles" id="as-roles" hidden></div>
             <small class="err"></small>
           </div>
           <div class="field" id="f-as-activity">
@@ -1423,12 +1437,12 @@ const Store = {
   },
   /** Atribui uma atividade a um ou mais colaboradores. Com 2 ou mais, todos recebem o mesmo
       groupId: é uma tarefa em equipe (status e horário ficam sincronizados). Devolve os ids criados. */
-  addAssignment(date, { collaboratorIds, activityId, time, end = '' }) {
+  addAssignment(date, { collaboratorIds, activityId, time, end = '', roles = {} }) {
     const groupId = collaboratorIds.length > 1 ? uid() : null;
     const now = new Date().toISOString();
     const ids = collaboratorIds.map(collaboratorId => {
       const id = uid();
-      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, end, status: 'pendente', groupId, updatedAt: now });
+      (this.state.assignments[date] ||= []).push({ id, collaboratorId, activityId, time, end, role: roles[collaboratorId] || '', status: 'pendente', groupId, updatedAt: now });
       return id;
     });
     this.commit(); return ids;
@@ -1464,6 +1478,19 @@ const Store = {
       Object.assign(x, patch, stamp, { updatedAt: now });
     });
     this.commit();
+  },
+  /** O que esta pessoa faz dentro da tarefa em equipe (só nela, não muda os colegas) */
+  setRole(date, id, role) {
+    const a = this.rawDay(date).find(x => x.id === id);
+    if (!a) return;
+    a.role = role; a.updatedAt = new Date().toISOString();
+    this.commit();
+  },
+  /** Colegas da mesma tarefa em equipe, já com o que cada um faz: [{ c, role }] */
+  teamWithRoles(date, a) {
+    if (!a || !a.groupId) return [];
+    return this.rawDay(date).filter(x => x.groupId === a.groupId && x.id !== a.id)
+      .map(x => ({ c: this.getCollaborator(x.collaboratorId), role: x.role || '' })).filter(x => x.c);
   },
   removeAssignment(date, id) {
     this.state.assignments[date] = this.rawDay(date).filter(a => a.id !== id);
@@ -1990,6 +2017,16 @@ const Editor = {
     $('#as-team-add').innerHTML = `<option value="">${this.team.length ? '+ Adicionar mais alguém…' : '+ Adicionar colaborador à tarefa…'}</option>` +
       options.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     $('#as-team-add').disabled = !options.length;
+    this.renderRoles();
+  },
+  /* "O que cada um faz": um campo por pessoa quando a tarefa é em equipe (mesma atividade / mesma máquina) */
+  roles: {},
+  renderRoles() {
+    const box = $('#as-roles'), main = $('#as-colab').value, ids = main && this.team.length ? [main, ...this.team] : [];
+    $$('#as-roles input').forEach(i => { this.roles[i.dataset.role] = i.value; });   // guarda o que já foi digitado
+    box.hidden = !ids.length;
+    box.innerHTML = ids.length ? `<div class="roles-title">O que cada um faz <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:500">(opcional)</span></div>` +
+      ids.map(id => `<label class="role-row"><b>${esc(Store.getCollaborator(id).name)}</b><input class="input" maxlength="60" data-role="${id}" value="${esc(this.roles[id] || '')}" placeholder="Ex.: lixa as bordas"></label>`).join('') : '';
   },
 
   /* ---------- Lista de atribuições do dia, agrupada por colaborador ---------- */
@@ -2020,7 +2057,8 @@ const Editor = {
           <div class="desc">${esc(a.activity.description)}<span class="prio prio-${a.activity.priority}">${PRIORITY[a.activity.priority].label}</span>${a.routineId ? '<span class="tag-rot">Rotina</span>' : ''}${a.cleaningId ? '<span class="tag-rot">Limpeza</span>' : ''}${isLate(a, this.refDate) ? `<span class="tag-late">${icon('alert')}Atrasada</span>` : ''}
             ${crossesMidnight(a.time, a.end) ? `<div class="real night">${icon('moon')}Termina às ${esc(a.end)} do dia seguinte</div>` : ''}
             ${a.startedAt || a.doneAt ? `<div class="real">${a.startedAt ? 'Iniciada às ' + hhmmOf(a.startedAt) : ''}${a.startedAt && a.doneAt ? ' · ' : ''}${a.doneAt ? 'concluída às ' + hhmmOf(a.doneAt) : ''}</div>` : ''}
-            ${(() => { const t = Store.teammates(this.refDate, a); return t.length ? `<div class="team">${icon('users')}com ${esc(t.map(c => c.name).join(', '))}</div>` : ''; })()}
+            ${(() => { const t = Store.teamWithRoles(this.refDate, a); return t.length ? `<div class="team">${icon('users')}<span>com ${t.map(x => esc(x.c.name) + (x.role ? ` <span class="muted" style="font-weight:500">(${esc(x.role)})</span>` : '')).join(', ')}</span></div>
+              <label class="role-edit"><span>O que faz:</span><input class="input" maxlength="60" data-act="role" value="${esc(a.role || '')}" placeholder="Ex.: lixa as bordas"></label>` : ''; })()}
             <button type="button" class="link-btn" data-act="join">+ incluir colaborador</button></div>
           <select class="input status-select s-${a.status}" data-act="status" aria-label="Status">
             ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${k === a.status ? 'selected' : ''}>${v}</option>`).join('')}
@@ -2437,9 +2475,11 @@ const Editor = {
       if (busy.length) {
         setFieldError($('#as-activity').value ? 'f-as-activity' : 'f-as-machine', `Já está atribuída a ${busy.join(', ')} nesta data. Use "+ incluir colaborador" na lista para formar a equipe.`); return;
       }
-      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time, end });
+      $$('#as-roles input').forEach(i => { this.roles[i.dataset.role] = i.value; });
+      const roles = Object.fromEntries(collaboratorIds.length > 1 ? collaboratorIds.map(id => [id, cleanText(this.roles[id] || '').slice(0, 60)]) : []);
+      const ids = Store.addAssignment(this.refDate, { collaboratorIds, activityId, time, end, roles });
       $('#as-activity').value = ''; $('#as-time').value = ''; $('#as-end').value = '';   // mantém o colaborador (e a máquina) para agilizar várias atribuições
-      this.team = []; this.renderTeamPicker();
+      this.team = []; this.roles = {}; this.renderTeamPicker();
       this.renderDate(); this.renderAssignList(); this.renderCounts(); this.renderCollabs();
       flash('#as-' + ids[0]);
       toast((ids.length > 1 ? `Tarefa em equipe atribuída a ${ids.length} colaboradores.` : 'Atividade atribuída.') + (crossesMidnight(time, end) ? ` Termina às ${end} do dia seguinte.` : ''));
@@ -2466,6 +2506,11 @@ const Editor = {
         Store.updateAssignment(this.refDate, row.dataset.id, { status: e.target.value });
         this.renderAssignList(); this.renderDate(); flash('#as-' + row.dataset.id);
         toast(`Status: ${STATUS[e.target.value]}.` + (Store.teammates(this.refDate, Store.rawDay(this.refDate).find(x => x.id === row.dataset.id)).length ? ' Atualizado para toda a equipe.' : ''));
+      } else if (act === 'role') {
+        const role = cleanText(e.target.value).slice(0, 60);
+        Store.setRole(this.refDate, row.dataset.id, role);
+        this.renderAssignList(); flash('#as-' + row.dataset.id);
+        toast(role ? 'Função registrada.' : 'Função removida.');
       } else if (act === 'time' || act === 'end') {
         const cur = Store.rawDay(this.refDate).find(x => x.id === row.dataset.id) || {};
         const start = act === 'time' ? e.target.value : cur.time, end = act === 'end' ? e.target.value : (cur.end || '');
@@ -3129,10 +3174,10 @@ const TV = {
         <div class="tv-progress-txt">${done}/${items.length}</div>
       </div>
       <ul class="tv-list">${items.map(a => {
-        const t = Store.teammates(a.date || today, a);
+        const t = Store.teamWithRoles(a.date || today, a);
         return `<li class="tv-item p-${a.activity.priority} s-${a.status} ${isLate(a, a.date) ? 'late' : ''}">
           ${a.time ? `<span class="tv-time">${a.time}${a.end ? `<small>${a.end}</small>` : ''}</span>` : '<span class="tv-time none"></span>'}
-          <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${t.length ? `<span class="tv-with">com ${esc(t.map(c => c.name.split(' ')[0]).join(', '))}</span>` : ''}</span>
+          <span class="tv-main"><span class="tv-desc">${this.tags(a)}${esc(a.activity.description)}</span>${a.role ? `<span class="tv-role">${esc(a.role)}</span>` : ''}${t.length ? `<span class="tv-with">com ${esc(t.map(x => x.c.name.split(' ')[0] + (x.role ? ` (${x.role})` : '')).join(', '))}</span>` : ''}</span>
         </li>`; }).join('')}</ul>
     </article>`;
   },
@@ -3197,7 +3242,7 @@ const TV = {
 
     const grid = $('#tv-grid');
     // "Peso" de cada cartão: atividades com colega ("com Fulano") ou descrição longa ocupam mais altura
-    const load = g => g.items.reduce((t, a) => t + 1 + (Store.teammates(a.date || today, a).length ? 0.5 : 0) + (a.activity.description.length > 24 ? 0.45 : 0), 0);
+    const load = g => g.items.reduce((t, a) => t + 1 + (Store.teammates(a.date || today, a).length ? 0.5 : 0) + (a.role ? 0.5 : 0) + (a.activity.description.length > 24 ? 0.45 : 0), 0);
     let pages = 1;
     if (!all.length) {
       grid.className = 'tv-grid'; grid.removeAttribute('style');
